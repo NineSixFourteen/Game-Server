@@ -3,3 +3,10 @@ src/backend/GameApi/bin/
 src/backend/GameApi/obj/
 src/backend/GameApi/appsettings.json
 src/backend/GameApi/Migrations
+
+src/backend/GamePlayer/bin/
+src/backend/GamePlayer/obj/
+
+src/backend/TestGames/bin/
+src/backend/TestGames/obj/
+

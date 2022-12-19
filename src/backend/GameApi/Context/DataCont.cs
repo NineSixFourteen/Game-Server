@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using GamePlayer.Game;
 
 public class DataContext : DbContext{
     protected readonly IConfiguration Configuration;

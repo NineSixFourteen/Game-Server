@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using GamePlayer.Game;
 namespace GameApi.Controllers;
 [ApiController]
 [Route("[controller]")]
@@ -24,21 +25,19 @@ public class UserController : ControllerBase{
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<User>> GetUsers(){
-        if(_userService == null){
-            return NotFound();
-        }        var result = _userService.GetAllUsers().ToList();
-        return result;
+    public ActionResult<List<User>> GetUsers(){
+        var List = DBContext.Users;
+        var res = List.ToList();
+        return res;
    }
 
    [HttpGet("GetUser")]
-public ActionResult<int> Get(){
-    var List = DBContext.Users;
-    DBContext.Add<User>(new User());
-    DBContext.Add<Game>(new Game());
-    DBContext.SaveChanges();
-    var x = List.Count();
-    return x;
-}
+    public ActionResult<int> Get(){
+        var List = DBContext.Games;
+        DBContext.Games.Add(new Game());
+        DBContext.SaveChanges();
+        var x = List.Count();
+        return x;
+    }
 
 }
