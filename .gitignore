@@ -2,3 +2,4 @@
 src/backend/GameApi/bin/
 src/backend/GameApi/obj/
 src/backend/GameApi/appsettings.json
+src/backend/GameApi/Migrations

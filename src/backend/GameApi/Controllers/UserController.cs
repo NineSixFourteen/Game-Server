@@ -7,8 +7,11 @@ public class UserController : ControllerBase{
 
     private IUserService _userService;
 
-    public UserController(IUserService userServ){
+    private readonly DataContext DBContext;
+
+    public UserController(IUserService userServ, DataContext DBContext){
         _userService = userServ;
+        this.DBContext = DBContext;
     }
 
     [HttpPost]
@@ -28,5 +31,14 @@ public class UserController : ControllerBase{
         return result;
    }
 
+   [HttpGet("GetUser")]
+public ActionResult<int> Get(){
+    var List = DBContext.Users;
+    DBContext.Add<User>(new User());
+    DBContext.Add<Game>(new Game());
+    DBContext.SaveChanges();
+    var x = List.Count();
+    return x;
+}
 
 }
