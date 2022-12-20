@@ -10,3 +10,6 @@ src/backend/GamePlayer/obj/
 src/backend/TestGames/bin/
 src/backend/TestGames/obj/
 
+src/backend/Helpers/bin/
+src/backend/Helpers/obj/
+

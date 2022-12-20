@@ -21,4 +21,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../Helpers/Helpers.csproj" />
+    <ProjectReference Include="../GameApi/GameApi.csproj" />
+    <ProjectReference Include="../GamePlayer/GamePlayer.csproj" />
+  </ItemGroup>
+
 </Project>
