@@ -74,14 +74,14 @@ public class TicTacToe : PlayableGame{
             return new Maybe<MyError>.Some(err.Value);
         }
         playerTurn = game.turn == 0;
-        string[] tempPlay = game.players.Split(",");
+        string[] tempPlay = game.players.Split(", ");
         if(tempPlay.Length == 2) 
             players= tempPlay;
         else {
             valid = false;
             return new Maybe<MyError>.Some(new ParseError(2,"Expected 2 players got " + tempPlay.Length));
         }
-        string[] tempPlayAuth = game.playersAuths.Split(",");
+        string[] tempPlayAuth = game.playersAuths.Split(", ");
         if(tempPlayAuth.Length == 2) 
             playersAuths = tempPlayAuth;
         else{
@@ -104,7 +104,8 @@ public class TicTacToe : PlayableGame{
         } catch (Exception){
             return new Maybe<MyError>.Some(new MoveError(3, "Move not valid"));
         }
-        board[place] = player;
+        board[place] = player + 1;
+        playerTurn = !playerTurn;
         return new Maybe<MyError>.None();
     }
     private int getPlayer(string auth){
@@ -118,15 +119,12 @@ public class TicTacToe : PlayableGame{
         if(!valid){
             return new Maybe<Game>.None();
         }
-        return new Maybe<Game>.Some(new Game(1,boardToState(board),String.Join(",",players), String.Join(", ",playersAuths)));
+        return new Maybe<Game>.Some(
+            new Game(1,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
     }
-    private string boardToState(int[] board){
+    public string getState(){
         char[] c = board.Select(val => (char) (val + 48)).ToArray();
-        string? s = c.ToString();
-        if(s != null)
-            return s;
-        else 
-            return "";
+        return new String(c);
     }
 
     public string display(){

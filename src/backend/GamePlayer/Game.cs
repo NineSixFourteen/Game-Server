@@ -9,12 +9,13 @@ public class Game {
         players = "test132, test22";
         playersAuths = "auth12, auth22";
     }
-    public Game(int gameType, string state, string Players, string PlayersAuths ){
+    public Game(int gameType, string state, string Players, string PlayersAuths,int turn ){
         Id = 0;
         GameType = gameType;
         State = state;
         players = Players;
         playersAuths = PlayersAuths;
+        this.turn = turn;
     }
     public int Id {get; set;}
     public int GameType {get; set;}

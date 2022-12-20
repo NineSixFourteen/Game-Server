@@ -9,6 +9,7 @@ public interface PlayableGame {
     public int getWinner();
     public Maybe<Game> toGame();
     public string display();
+    public string getState();
     
 }
 

@@ -23,7 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../Helpers/Helpers.csproj" />
-    <ProjectReference Include="../GameApi/GameApi.csproj" />
+  </ItemGroup> 
+  <ItemGroup>
     <ProjectReference Include="../GamePlayer/GamePlayer.csproj" />
   </ItemGroup>
 
