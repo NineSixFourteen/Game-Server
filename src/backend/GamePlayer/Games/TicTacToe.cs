@@ -7,6 +7,7 @@ public class TicTacToe : PlayableGame{
     public TicTacToe(){}
     public int[] board {get;set;} = new int[0];
     public bool playerTurn{get;set;}
+    public int id {get;set;}
     public string[] players{get;set;} = new string[0];
     public string[] playersAuths{get;set;} = new string[0];
     private int winner = -1;
@@ -66,6 +67,7 @@ public class TicTacToe : PlayableGame{
     }
     public Maybe<MyError> fromGame(Game game){
         valid = true;
+        id = game.Id;
         var board = getBoard(game.State);
         if(board is Result<int[],MyError>.Ok ok) 
             this.board = ok.Value;
@@ -120,7 +122,7 @@ public class TicTacToe : PlayableGame{
             return new Maybe<Game>.None();
         }
         return new Maybe<Game>.Some(
-            new Game(1,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
+            new Game(id,1,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
     }
     public string getState(){
         char[] c = board.Select(val => (char) (val + 48)).ToArray();

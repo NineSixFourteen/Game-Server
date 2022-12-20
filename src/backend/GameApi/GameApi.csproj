@@ -27,4 +27,7 @@
     <ProjectReference Include="../GamePlayer/GamePlayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../Helpers/Helpers.csproj" />
+  </ItemGroup> 
 </Project>

@@ -3,6 +3,8 @@ using GamePlayer.Game;
 using GamePlayer.MyError;
 using Helpers.Maybe;
 public interface PlayableGame {
+
+    public int id {get;set;}
     public Maybe<MyError> fromGame(Game game);
     public Maybe<MyError> makeMove(string move,string auth);
     public bool isGameComplete();
