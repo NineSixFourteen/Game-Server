@@ -18,7 +18,7 @@ public class TicTacToe : PlayableGame{
         int[] board = new int[9];
         int i = 0;
         foreach(char ch in state.ToList()){
-            if(ch > 50) 
+            if(ch > 50 || ch < 48) 
                 return new Result<int[],MyError>.Error(new ParseError(1,"Expected a max value of 2"));
             board[i++] = ch - 48;
         }
@@ -106,9 +106,13 @@ public class TicTacToe : PlayableGame{
         } catch (Exception){
             return new Maybe<MyError>.Some(new MoveError(3, "Move not valid"));
         }
-        board[place] = player + 1;
-        playerTurn = !playerTurn;
-        return new Maybe<MyError>.None();
+        if(board[place] == 0){
+            board[place] = player + 1;
+            playerTurn = !playerTurn;
+            return new Maybe<MyError>.None();
+        } else {
+            return new Maybe<MyError>.Some(new MoveError(4, "Position is filled"));
+        }
     }
     private int getPlayer(string auth){
         for(int i = 0; i < playersAuths.Length;i++){
@@ -118,9 +122,8 @@ public class TicTacToe : PlayableGame{
         return -1;
     }
     public Maybe<Game> toGame(){
-        if(!valid){
+        if(!valid)
             return new Maybe<Game>.None();
-        }
         return new Maybe<Game>.Some(
             new Game(id,1,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
     }
@@ -128,7 +131,6 @@ public class TicTacToe : PlayableGame{
         char[] c = board.Select(val => (char) (val + 48)).ToArray();
         return new String(c);
     }
-
     public string display(){
         string board = "";
         for(int i = 0; i < 3;i++){
@@ -139,7 +141,6 @@ public class TicTacToe : PlayableGame{
         }
         return board;
     }
-
     private char getSym(int n){
         switch(board[n]){
             case 1:

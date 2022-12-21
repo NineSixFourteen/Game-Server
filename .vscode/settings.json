@@ -1,3 +1,4 @@
 {
     "dotnet-test-explorer.testProjectPath": "src/backend/TestGames",
+    "appService.defaultWebAppToDeploy": "None",
 }

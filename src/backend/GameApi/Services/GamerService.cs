@@ -4,16 +4,15 @@ using GamePlayer.MyError;
 using Helpers.Maybe;
 public interface IGameService {
 
-    List<Game> GetOriginals();
     Maybe<MyError> AddGame(Game game);
     List<Game> GetAllGames();
     Maybe<MyError> makeMove(int id, string move, string auth);
     Maybe<PlayableGame> getBoard(int id);
+    Maybe<MyError> dropGame(int id);
 }
 
 public class GameServer : IGameService {
     private List<PlayableGame> games;
-    private List<Game> originals;
 
     public GameServer(){
         games = new List<PlayableGame>();
@@ -27,12 +26,18 @@ public class GameServer : IGameService {
                     return err;
                 } else {
                     games.Add(gm);
-                    originals.Add(game);
                     return new Maybe<MyError>.None();
                 }
             default:
                 return new Maybe<MyError>.Some(new ServiceError(1,"Game Type Unknown"));
         }
+    }
+    public Maybe<MyError> dropGame(int id){
+        var game = games.Find(gam => gam.id == id);
+        if(game != null){
+            games.Remove(game);
+        } else new Maybe<MyError>.Some(new ServiceError(5,"Game wasnt loaded"));
+        return new Maybe<MyError>.None();
     }
     public List<Game> GetAllGames(){
         List<Game> gams = new List<Game>();
@@ -53,9 +58,6 @@ public class GameServer : IGameService {
         }
     }
 
-    public List<Game> GetOriginals(){
-        return originals;
-    }
 
     public Maybe<MyError> makeMove(int id,string move, string auth){
         Maybe<PlayableGame> MayGame = GetGame(id);

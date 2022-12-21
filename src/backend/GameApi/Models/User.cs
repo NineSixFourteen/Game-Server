@@ -1,11 +1,11 @@
 
 public class User {
 
-    public User(){
+    public User(String name, String pass, String token){
         Id = 0;
-        Name = "Npoe";
-        Pass = "24se4s";
-        Token = "auth1";
+        Name = name;
+        Pass = pass;
+        Token = token;
     }
     public int Id {get; set;}
     public string Name {get; set;}

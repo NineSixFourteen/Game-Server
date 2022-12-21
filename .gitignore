@@ -12,4 +12,5 @@ src/backend/TestGames/obj/
 
 src/backend/Helpers/bin/
 src/backend/Helpers/obj/
+src/backend/Helpers/Info.cs
 

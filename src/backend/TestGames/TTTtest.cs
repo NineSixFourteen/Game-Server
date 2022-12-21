@@ -11,7 +11,6 @@ public class UnitTest1{
         tic.fromGame(new Game(
            1,0, "000000000","player1, player2","auth1, auth2",0
         ));
-        Console.WriteLine(tic.display());
         tic.makeMove("0","auth1");
         Assert.Equal("100000000",tic.getState());
         var x = tic.makeMove("1","auth1");
