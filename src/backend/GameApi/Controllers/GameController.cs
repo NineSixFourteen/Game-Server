@@ -97,11 +97,25 @@ public class GameController: ControllerBase{
     }
     [HttpGet("MakeMove")]
     public ActionResult<string> makeMove(int id, string move, string auth){
-        var x = _gameService.makeMove(id,move,auth);
-        if(x is Maybe<MyError>.Some z){
-            return z.Value.getError();
+        if(added.First(ids => ids == id) != 0){
+            var x = _gameService.makeMove(id,move,auth);
+            if(x is Maybe<MyError>.Some z){
+                return z.Value.getError();
+            } else {
+                return "Move Made";
+            }
         } else {
-            return "Move Made";
+            var x = loadGame(id);
+            if(x is Maybe<MyError>.Some err){
+                return err.Value.getError();
+            } else {
+                var y = _gameService.makeMove(id,move,auth);
+                if(y is Maybe<MyError>.Some z){
+                    return z.Value.getError();
+                } else {
+                    return "Move Made";
+                }
+            }
         }
     }
 }

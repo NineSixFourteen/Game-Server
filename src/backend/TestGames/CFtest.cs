@@ -29,7 +29,6 @@ public class ConFour{
         ));
         var muv = tic.makeMove("0","auth1");
         if(muv is Maybe<MyError>.Some er){
-            int i =0;
         } else Assert.False(true);
     }
     [Fact]

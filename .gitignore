@@ -14,3 +14,19 @@ src/backend/Helpers/bin/
 src/backend/Helpers/obj/
 src/backend/Helpers/Info.cs
 
+src/frontend/front/dart_tool
+src/frontend/front/.idea
+src/frontend/front/android
+src/frontend/front/build
+src/frontend/front/ios
+src/frontend/front/linux
+src/frontend/front/macos
+src/frontend/front/test
+src/frontend/front/web
+src/frontend/front/windows
+src/frontend/front/.gitignore
+src/frontend/front/.metadata
+src/frontend/front/analysis_options.yaml
+src/frontend/front/pubspec.lock
+src/frontend/front/README.md
+
