@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
 using GamePlayer.Game;
 using GamePlayer.MyError;
 using GamePlayer.PlayableGame;
@@ -9,15 +10,18 @@ namespace GameApi.Controllers;
 [Route("[controller]")]
 public class GameController: ControllerBase{
     private IGameService _gameService;
-    private List<int> added = new List<int>();
+    private ITrack Tracker;
     private readonly DataContext DBContext;
-    public GameController(IGameService gameService, DataContext DBContext){
+    public GameController(IGameService gameService, DataContext DBContext, ITrack tracker){
         _gameService = gameService;
         this.DBContext = DBContext;
+        Tracker = tracker;
     }
     [HttpGet("Load")]
     public ActionResult<string> load(int id){
-        if(!added.Contains(id)){
+        if(!Tracker.getList().Contains(id)){
+            Tracker.addID(id);
+            Console.WriteLine(id);
             var x = loadGame(id);
             if(x is Maybe<MyError>.Some error){
                 return new ActionResult<string>(error.Value.getError());
@@ -27,7 +31,7 @@ public class GameController: ControllerBase{
     }
     [HttpGet("Drop")]
     public ActionResult<string> dropGame(int id){
-        if(added.Contains(id)){
+        if(Tracker.getList().Contains(id)){
             saveGames();
             var x = _gameService.dropGame(id);
             if(x is Maybe<MyError>.Some err){
@@ -83,21 +87,22 @@ public class GameController: ControllerBase{
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
    }
    [HttpGet("Get")]
-    public ActionResult<Game> Get(int id){
+    public ActionResult<Board> Get(int id){
         if(_gameService == null){
             return NotFound();
         }
         var x = _gameService.getBoard(id);
         if(x is Maybe<PlayableGame>.Some game){
             if(game.Value.toGame() is Maybe<Game>.Some gam){
-                return gam.Value;
-            }  
-        }
+                var ga = gam.Value;
+                return new Board(ga.State, ga.turn, game.Value.getWinner(), game.Value.isGameComplete());
+            }    
+        } 
         return NotFound();
     }
     [HttpGet("MakeMove")]
     public ActionResult<string> makeMove(int id, string move, string auth){
-        if(added.First(ids => ids == id) != 0){
+        if(Tracker.getList().FirstOrDefault(ids => ids == id) != 0){
             var x = _gameService.makeMove(id,move,auth);
             if(x is Maybe<MyError>.Some z){
                 return z.Value.getError();
