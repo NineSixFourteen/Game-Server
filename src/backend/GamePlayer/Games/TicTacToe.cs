@@ -12,6 +12,7 @@ public class TicTacToe : PlayableGame{
     public string[] playersAuths{get;set;} = new string[0];
     private int winner = -1;
     private bool valid = false;
+    private bool gameComplete = false;
     private Result<int[],MyError> getBoard(string state){
         if(state.Length != 9)
             return new Result<int[],MyError>.Error(new ParseError(4,"Expected a size of 9"));
@@ -25,11 +26,15 @@ public class TicTacToe : PlayableGame{
         return new Result<int[], MyError>.Ok(board);
     }
     public bool isGameComplete(){
-        bool winner = checkWinner();
-        if(winner){
-            return true;
-        }
-        return !possibleMoves();
+        if(!gameComplete){
+            bool winner = checkWinner();
+            if(winner){
+                gameComplete = true;
+                return true;
+            }
+            gameComplete = !possibleMoves();
+            return gameComplete;
+        } else return true;
     }
     private bool possibleMoves(){
         foreach(int tile in board){
@@ -93,26 +98,28 @@ public class TicTacToe : PlayableGame{
         return new Maybe<MyError>.None();
     }
     public Maybe<MyError> makeMove(string move, string auth){
-        int player = getPlayer(auth); 
-        if(player == -1)
-            return new Maybe<MyError>.Some(new MoveError(2, "Not a Player"));
-        if(playerTurn  && player == 1)
-            return new Maybe<MyError>.Some(new MoveError(1, "Not player's Turn"));
-        if(!playerTurn && player == 0)
-            return new Maybe<MyError>.Some(new MoveError(1, "Not player's Turn"));
-        int place = 0;
-        try{
-            place = Int32.Parse(move);
-        } catch (Exception){
-            return new Maybe<MyError>.Some(new MoveError(3, "Move not valid"));
-        }
-        if(board[place] == 0){
-            board[place] = player + 1;
-            playerTurn = !playerTurn;
-            return new Maybe<MyError>.None();
-        } else {
-            return new Maybe<MyError>.Some(new MoveError(4, "Position is filled"));
-        }
+        if(!gameComplete){
+            int player = getPlayer(auth); 
+            if(player == -1)
+                return new Maybe<MyError>.Some(new MoveError(2, "Not a Player"));
+            if(playerTurn  && player == 1)
+                return new Maybe<MyError>.Some(new MoveError(1, "Not player's Turn"));
+            if(!playerTurn && player == 0)
+                return new Maybe<MyError>.Some(new MoveError(1, "Not player's Turn"));
+            int place = 0;
+            try{
+                place = Int32.Parse(move);
+            } catch (Exception){
+                return new Maybe<MyError>.Some(new MoveError(3, "Move not valid"));
+            }
+            if(board[place] == 0){
+                board[place] = player + 1;
+                playerTurn = !playerTurn;
+                return new Maybe<MyError>.None();
+            } else {
+                return new Maybe<MyError>.Some(new MoveError(4, "Position is filled"));
+            }
+        } else return new Maybe<MyError>.Some(new MoveError(4, "Game is finished"));
     }
     private int getPlayer(string auth){
         for(int i = 0; i < playersAuths.Length;i++){
