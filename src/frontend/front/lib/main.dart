@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
       '/': (context) => HomePage(data: data),
-      '/Tic' :(context) => TicToeGame(data: data,)
+      '/Tic' :(context) => TicToeGame()
       },
       
     );

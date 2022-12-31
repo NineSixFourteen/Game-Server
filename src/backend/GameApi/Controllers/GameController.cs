@@ -69,7 +69,7 @@ public class GameController: ControllerBase{
         if(_gameService == null){
             return NotFound();
         }
-        DBContext.Games.Add(new Game(0,1,"000000011","player 3, player 4","auth1, auth2",0));
+        DBContext.Games.Add(new Game(0,1,"000000000","Test1, player1","SxPxTtZQ, p64lPhBr",0));
         DBContext.SaveChanges();
         var game = DBContext.Games.OrderByDescending(p => p.Id).FirstOrDefault();  
         if(game != null){
@@ -77,6 +77,7 @@ public class GameController: ControllerBase{
             if(result is Maybe<MyError>.Some  error){
                 return new ActionResult<string>(error.Value.getError());
             }
+
         } else{
             return new ActionResult<string>("Error cant find new game");
         }
@@ -87,7 +88,7 @@ public class GameController: ControllerBase{
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
    }
    [HttpGet("Get")]
-    public ActionResult<Board> Get(int id){
+    public ActionResult<GameStatus> Get(int id){
         if(_gameService == null){
             return NotFound();
         }
@@ -95,9 +96,15 @@ public class GameController: ControllerBase{
         if(x is Maybe<PlayableGame>.Some game){
             if(game.Value.toGame() is Maybe<Game>.Some gam){
                 var ga = gam.Value;
-                return new Board(ga.State, ga.turn, game.Value.getWinner(), game.Value.isGameComplete());
+                return new GameStatus(
+                    ga.State, ga.turn,
+                    game.Value.getWinner(), game.Value.isGameComplete(), 
+                    ga.players.Split(", ").ToArray());
             }    
-        } 
+        } else {
+            load(id);
+            return Get(id);
+        }
         return NotFound();
     }
     [HttpGet("MakeMove")]

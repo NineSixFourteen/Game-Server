@@ -28,24 +28,24 @@ public class UserController : ControllerBase{
         if(str == ""){
             User newUser = new User(name,HashString(password, Info.Salt), randomString(8));
             DBContext.Users.Add(newUser);
-            Users.Add(newUser);
+            DBContext.SaveChanges();
             return "User Created";
         } else {
             return str;
         }
     }
     [HttpGet("/Games")]
-    public ActionResult<(string,List<int>)> getGames(string name, string auth){
+    public ActionResult<List<int>> getGames(string name, string auth){
         var user = Users.Find(user => user.Name == name);
         if(user != null){
             if(user.Token == auth){
-                return ("Ok",DBContext.Games.ToList()
+                return (DBContext.Games.ToList()
                                 .Where(game => game.players.Split(", ")
                                 .Contains(name))
                                 .Select(game => game.Id)
                                 .ToList());
-            } else return ("Auth Error",new List<int>());
-        } else return ("User not found",new List<int>());
+            } else return (new List<int>());
+        } else return (new List<int>());
     }
     [HttpGet("/Login")]
     public ActionResult<string> login(string name, string pass){
