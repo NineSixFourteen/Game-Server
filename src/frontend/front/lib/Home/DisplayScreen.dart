@@ -1,12 +1,7 @@
 // ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks
 
-// ignore: todo
-//TODO 
-// Make A function that takes a List<List<int>> values , int height, int width, bool mobile
-// Add produces a set of size boxes 
-// Factor out card to a Heading and a Body 
-
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
@@ -14,14 +9,12 @@ import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import 'package:front/Home/DisplayHelper.dart';
 
-// ignore: must_be_immutable
 class DisplayScreen extends StatelessWidget {
   DisplayScreen(this.data, {super.key});
   Data data;
 
   @override
   Widget build(BuildContext context) {
-    // ignore: prefer_const_constructors
     MediaQueryData queryData = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
@@ -40,7 +33,6 @@ class Display extends StatefulWidget {
 
 class _Display extends State<Display> {
   _Display(this.data, this.glob,this.name,this.auth){
-    KK();
     name = glob.user;
     auth = glob.auth;
   }
@@ -65,16 +57,17 @@ class _Display extends State<Display> {
       ),
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
+      body: 
+          Stack(
+            children: [
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/images/background.png"),
-                fit: BoxFit.cover
+                fit: BoxFit.fill
                 ))
           ),
-          Row(
+          SingleChildScrollView(child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
@@ -86,19 +79,22 @@ class _Display extends State<Display> {
                   ),
                   Column(
                     children: boards.map(
-                      (word)=> DisplayGame(word,glob,data)
+                      (board) => DisplayGame(board, glob,data)
                       ).toList(),
                   ),
                   ElevatedButton(onPressed: ()=> KK(), child: const Text("Press ME"))])]
-    )]));
+    ))]));
   }
 
   void KK() async{
+    //Fake Data for testing 
+    fakeGames();
+    /* Actualy function
     try{
       final response = await http
         .get(Uri.parse('http://localhost:5083/Games?name=$name&auth=$auth'));
         if(response.statusCode == 200){
-          print(response.body);
+          
           if(response.body != "Error: User not found") {
             List<String> l = response.body.substring(1, response.body.length - 1).split(",");
             List<int> nums = l.map((e) => int.parse(e)).toList();
@@ -106,15 +102,38 @@ class _Display extends State<Display> {
           }
         } 
     } on Exception{}
+    */
   }
-
+  void fakeGames() {
+    sleep(const Duration(seconds:1));
+    List<Board> boar = List.empty(growable: true);
+    boar.add(
+      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: false, photos: [0,2])
+    );
+    boar.add((
+      const Board(players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [1,2]))
+    );
+        boar.add((
+      const Board(players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
+    );
+        boar.add((
+      const Board(players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [3,2]))
+    );
+        boar.add((
+      const Board(players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [0,2]))
+    );
+    for(Board bor in boar){
+      setState(() {
+        boards.add(bor);
+      });
+    }
+  }
   void getGames(List<int> games) async {
     for(int n in games){
       try{
         final response = await http
           .get(Uri.parse('http://localhost:5083/Game/Get?id=$n'));
           if(response.statusCode == 200){
-            print(response.body);
             if(response.body != "Error: User not found" && !added.contains(n)) {
               added.add(n);
               setState(()  {
@@ -140,53 +159,78 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data ){
   List<String> players = board.players;
   int emm = 0;
   int moves = getMoves(board.board);
-  for(int i = 0; i < 2;i++){
+  int photo = 0;
+    for(int i = 0; i < 2;i++){
     if(players[i] != glob.user){
       player = players[i];
       emm = i == 1 ? 0 : 1;
+      photo = board.photos[i];
     }
+  }
+  Column MiddleBit;
+  double fontSize;
+  double width;
+  if(data.size.width < data.size.height){
+    width = data.size.  width / 1.6;
+    fontSize = 25;
+    MiddleBit = Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("Vs $player",style: const TextStyle(color: Colors.red, fontSize: 25))),
+            ]);
+  } else {
+    width = data.size.width / 1.4;
+    fontSize = 50;
+    MiddleBit = Column(
+      children: [
+        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.red, fontSize: 33))]),
+        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.red, fontSize: 28))])
+    ]);
+  }
+
+  Text text;
+  if(board.turn == emm){
+    text = Text( "Your Turn",style: TextStyle(color: Colors.green, fontSize: fontSize));
+  } else {
+    text = Text( "Opponent Turn",style: TextStyle(color: Colors.red, fontSize: fontSize));
   }
   TextStyle sty = TextStyle(
     color: Colors.white,
     fontSize: data.size.height/20
   );
-  double width = data.size.width / 1.4;
   return Padding(
-    padding: const EdgeInsets.fromLTRB(0,10,0,10),
+    padding: const EdgeInsets.fromLTRB(0,10,0,5),
     child:ElevatedButton(
       style: const ButtonStyle(
         backgroundColor: MaterialStatePropertyAll(Colors.black),
       ),
-      child: Row(
+      child:  Row(
         children: [
           SizedBox(
             width: width/7,
             height: 80,
-            child: Image.asset("assets/images/temp.png")
+            child: Image.asset("assets/images/$photo.png")
             ),
           SizedBox(
-            width: (width/5),
-            height: 80,
-            child: Column(
-              children: [
-                Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.red, fontSize: 33))]),
-                Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.red, fontSize: 18))])
-            ])
+            width: (width/5)*1.5,
+            height: 83,
+            child: MiddleBit
             ),
           SizedBox(
-            width: (width/5)*3 ,
-            height: 80,
+            width: (width/5)*2,
+            height: 100,
             child: Column(
-              children: const [
-                 Text( "Your Turn",style: TextStyle(color: Colors.red, fontSize: 50))
+              children:  [
+                text
             ])
           ),
           SizedBox(
-            width:  90,
+            width:  120,
             height: 75,
             child: Column(
               children: [
-                ShowBoard(board.board)
+                ShowBoard(board.board,data)
             ])
             ),
     ]),
@@ -204,32 +248,39 @@ int getMoves(List<int> board) {
   return moves; 
 }
 
-Widget ShowBoard(List<int> board) {
+Widget ShowBoard(List<int> board, MediaQueryData data) {
   Widget wid;
-  
+  double width;
+  double height;
+  if(data.size.width < data.size.height){
+    width = 40;
+    height = 20 ;
+  }  else {
+    width = 40;
+    height = 25;
+  } 
   if(board.length == 9){
-    print(board.length);
     wid = Row(
       children: [
         Column(
           children: [
-            smallTile(board[0]),
-            smallTile(board[3]),
-            smallTile(board[6])
+            smallTile(board[0],width,height),
+            smallTile(board[3],width,height),
+            smallTile(board[6],width,height)
           ],
         ),
         Column(
           children: [
-            smallTile(board[1]),
-            smallTile(board[4]),
-            smallTile(board[7])
+            smallTile(board[1],width,height),
+            smallTile(board[4],width,height),
+            smallTile(board[7],width,height)
           ],
         ),
         Column(
           children: [
-            smallTile(board[2]),
-            smallTile(board[5]),
-            smallTile(board[8])
+            smallTile(board[2],width,height),
+            smallTile(board[5],width,height),
+            smallTile(board[8],width,height)
           ],
         )
       ],
@@ -254,7 +305,7 @@ BoxDecoration backG(Color color){
     );
 }
 
-Widget smallTile(int val){
+Widget smallTile(int val, double width, double height){
   const red = MaterialStatePropertyAll<Color>(Colors.red);
   const blue = MaterialStatePropertyAll<Color>(Colors.blue);
   var color = MaterialStatePropertyAll<Color>(Colors.grey[500]!);
@@ -263,23 +314,22 @@ Widget smallTile(int val){
     color = red;
     msg = "X";
   } else if(val == 1){
-      color = blue;
-      msg = "O";
+    color = blue;
+    msg = "O";
   }
   return SizedBox(
-    height: 25,
-    width:  30,
+    height: height,
+    width:  width,
     child: ElevatedButton(
         style: ButtonStyle(
           backgroundColor: color,
         ),
         onPressed: () => {}, 
-          child: Align(
-            alignment: Alignment.center,
             child: Text(
               msg,
-              style: const TextStyle(fontSize: 90, color: Colors.white),
-        )))
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+              textAlign: TextAlign.left,
+        ))
       );
 }
 

@@ -40,10 +40,11 @@ class _Login extends State<Login> {
   Data glob;
 
   void move(){
+    glob.user = "Test1";
     Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DisplayScreen(glob)),
-            );
+      context,
+      MaterialPageRoute(builder: (context) => DisplayScreen(glob)),
+    );
   }
 
   void SignIn(String name, String Password) async{
@@ -125,8 +126,8 @@ class _Login extends State<Login> {
             ),
             child: ElevatedButton(
               onPressed: ()=>{
-                //move()
-                SignIn(field1.text,field2.text)
+                move()
+                //SignIn(field1.text,field2.text)
               },
               // ignore: prefer_const_constructors
               child: Text(  
