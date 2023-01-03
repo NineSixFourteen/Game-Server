@@ -92,6 +92,7 @@ public class GameController: ControllerBase{
         if(_gameService == null){
             return NotFound();
         }
+        Console.WriteLine(id);
         var x = _gameService.getBoard(id);
         if(x is Maybe<PlayableGame>.Some game){
             if(game.Value.toGame() is Maybe<Game>.Some gam){

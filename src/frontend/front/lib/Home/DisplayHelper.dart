@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,7 @@ Widget CardC(Widget head, Widget bod, MediaQueryData data, BoxDecoration decorat
     height = data.size.height/2.4;
   } else{
     width = data.size.width/1.1;
-    height = data.size.height/2.4;
+  height = data.size.height/2.4;
   }
   return Card(child: Container(  
     decoration: decoration,

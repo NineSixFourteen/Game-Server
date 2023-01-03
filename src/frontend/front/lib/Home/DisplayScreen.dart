@@ -1,10 +1,10 @@
 // ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
+import 'package:front/TicTac/TicTacGui.dart';
 import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import 'package:front/Home/DisplayHelper.dart';
@@ -77,50 +77,51 @@ class _Display extends State<Display> {
                     StatsBody(data),
                     data,backG(Colors.black)
                   ),
+                  filter(data),
                   Column(
                     children: boards.map(
-                      (board) => DisplayGame(board, glob,data)
+                      (board) => DisplayGame(board, glob,data,context)
                       ).toList(),
                   ),
                   ElevatedButton(onPressed: ()=> KK(), child: const Text("Press ME"))])]
     ))]));
   }
 
-  void KK() async{
+
+  void KK() async {
     //Fake Data for testing 
-    fakeGames();
-    /* Actualy function
+    //fakeGames();
     try{
       final response = await http
         .get(Uri.parse('http://localhost:5083/Games?name=$name&auth=$auth'));
         if(response.statusCode == 200){
-          
           if(response.body != "Error: User not found") {
             List<String> l = response.body.substring(1, response.body.length - 1).split(",");
             List<int> nums = l.map((e) => int.parse(e)).toList();
             getGames(nums);
           }
         } 
-    } on Exception{}
-    */
+    } on Exception{
+      print("fail2");
+    }
+    
   }
   void fakeGames() {
-    sleep(const Duration(seconds:1));
     List<Board> boar = List.empty(growable: true);
     boar.add(
-      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: false, photos: [0,2])
+      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: false, photos: [0,2], id: 0)
     );
     boar.add((
-      const Board(players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [1,2]))
+      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [1,2]))
     );
         boar.add((
-      const Board(players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
+      const Board( id: 4,players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
     );
         boar.add((
-      const Board(players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [3,2]))
+      const Board( id: 4,players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [3,2]))
     );
         boar.add((
-      const Board(players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [0,2]))
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [0,2]))
     );
     for(Board bor in boar){
       setState(() {
@@ -137,11 +138,13 @@ class _Display extends State<Display> {
             if(response.body != "Error: User not found" && !added.contains(n)) {
               added.add(n);
               setState(()  {
-                boards.add(Board.fromJson(jsonDecode(response.body)));
+                boards.add(Board.fromJson(jsonDecode(response.body),n));
               });
             }
           } 
-      } on Exception{}
+      } on Exception{
+        print("fail");
+      }
     }
   }
 
@@ -154,7 +157,16 @@ class _Display extends State<Display> {
   }
 }
 
-Widget DisplayGame(Board board, Data glob,MediaQueryData data ){
+Widget filter(MediaQueryData data) {
+  if(data.size.width < data.size.height){
+
+  } else {
+
+  }
+  return Text("s");
+}
+
+Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext context){
   String player = "";
   List<String> players = board.players;
   int emm = 0;
@@ -171,24 +183,23 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data ){
   double fontSize;
   double width;
   if(data.size.width < data.size.height){
-    width = data.size.  width / 1.6;
+    width = data.size.  width / 1.3;
     fontSize = 25;
     MiddleBit = Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text("Vs $player",style: const TextStyle(color: Colors.red, fontSize: 25))),
-            ]);
+      children: [
+        const Text("Vs       ",style: TextStyle(color: Colors.red, fontSize: 25)),
+        Text(player,style: const TextStyle(color: Colors.red, fontSize: 20)),
+
+    ]);
   } else {
     width = data.size.width / 1.4;
     fontSize = 50;
     MiddleBit = Column(
       children: [
-        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.red, fontSize: 33))]),
-        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.red, fontSize: 28))])
+        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.red, fontSize: 31))]),
+        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.red, fontSize: 26))])
     ]);
   }
-
   Text text;
   if(board.turn == emm){
     text = Text( "Your Turn",style: TextStyle(color: Colors.green, fontSize: fontSize));
@@ -208,18 +219,18 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data ){
       child:  Row(
         children: [
           SizedBox(
-            width: width/7,
-            height: 80,
+            width: width/5,
+            height: 100,
             child: Image.asset("assets/images/$photo.png")
             ),
           SizedBox(
             width: (width/5)*1.5,
-            height: 83,
+            height: 80,
             child: MiddleBit
             ),
           SizedBox(
-            width: (width/5)*2,
-            height: 100,
+            width: (width/5)*1.5,
+            height: 75,
             child: Column(
               children:  [
                 text
@@ -234,9 +245,17 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data ){
             ])
             ),
     ]),
-      onPressed: () => {},
+      onPressed: () => {loadGame(board.id, context,glob.auth)},
   ));
 }
+
+
+  void loadGame(int gameID, BuildContext context, String auth){
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TicToeGame(id:gameID, auth:auth)),
+      );
+  }
 
 int getMoves(List<int> board) {
   int moves =0;
@@ -254,7 +273,7 @@ Widget ShowBoard(List<int> board, MediaQueryData data) {
   double height;
   if(data.size.width < data.size.height){
     width = 40;
-    height = 20 ;
+    height = 25 ;
   }  else {
     width = 40;
     height = 25;
@@ -286,7 +305,7 @@ Widget ShowBoard(List<int> board, MediaQueryData data) {
       ],
     );
   } else{
-    wid = Text("asdasdadasdasd", style: TextStyle(color: Colors.red),);
+    wid = const Text("Connect4", style: TextStyle(color: Colors.red),);
   }
   return wid;
 }

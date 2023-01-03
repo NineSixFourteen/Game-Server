@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Common.dart';
-import 'package:front/Shared/Data.dart';
 import 'package:front/TicTac/TicBoard.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,10 +12,12 @@ Future<http.Response> fetchGame() async {
 
 // ignore: must_be_immutable, prefer_typing_uninitialized_variables
 class TicToeGame extends StatefulWidget {
-  TicToeGame({super.key});
+  TicToeGame({super.key,required this.id,required this.auth});
+  int id;
+  String auth;
   @override
   // ignore: no_logic_in_create_state
-  State<TicToeGame> createState() => _TicToeGame(4, [],0,true,"1, 2", "s",0,false);
+  State<TicToeGame> createState() => _TicToeGame(id, [],0,true,"1, 2", auth,0,false);
 }
 
 class _TicToeGame extends State<TicToeGame> {
@@ -50,31 +51,34 @@ class _TicToeGame extends State<TicToeGame> {
   }
 
   Future<void> sendMove(int move) async {
-      updateBB();
+    print(auth);
+      final Response = await http.get(Uri.parse(
+        "http://localhost:5083/Game/makeMove?id=$id&move=$move&auth=$auth"
+      ));
   }
 
   void updateBB() async{
     try{
-          final response = await http
-                .get(Uri.parse('http://localhost:5083/Game/Get?id=$id'));
-          if(response.statusCode == 200){
-            var x = Board.fromJson(jsonDecode(response.body));
-            setState(() {
-                board = x.board;
-                winner = x.winner;
-                gameDone = x.gameDone;
-                turn = true;
-              });
-          } 
-        // ignore: empty_catches
-        } on Exception{
-        }
+      final response = await http
+            .get(Uri.parse('http://localhost:5083/Game/Get?id=$id'));
+      if(response.statusCode == 200){
+        var x = Board.fromJson(jsonDecode(response.body),id);
+        setState(() {
+            board = x.board;
+            winner = x.winner;
+            gameDone = x.gameDone;
+            turn = true;
+          });
+      } 
+    // ignore: empty_catches
+    } on Exception{
+    }
   }
 
   void getBoard(){
     Timer.periodic(const Duration(seconds: 5), 
       (timer) async {
-        
+        updateBB();
       });
   }
   @override

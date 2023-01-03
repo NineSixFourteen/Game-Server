@@ -52,9 +52,7 @@ class _Login extends State<Login> {
       // ignore: unused_local_variable
       final response = await http
         .get(Uri.parse('http://localhost:5083/Login?name=$name&pass=$Password'));
-        print(response.body);
         if(response.statusCode == 200){
-          print(response.body);
           if(response.body != "Error: User not found") {
             glob.auth = response.body;
             glob.user = name;
@@ -66,8 +64,7 @@ class _Login extends State<Login> {
             );
           }
         } 
-    } catch (Exception){
-      print(Exception);
+    } on Exception{
     }
   }
   final field1 = TextEditingController();
@@ -126,8 +123,8 @@ class _Login extends State<Login> {
             ),
             child: ElevatedButton(
               onPressed: ()=>{
-                move()
-                //SignIn(field1.text,field2.text)
+                //move()
+                SignIn(field1.text,field2.text)
               },
               // ignore: prefer_const_constructors
               child: Text(  
