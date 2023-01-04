@@ -90,7 +90,8 @@ class _Display extends State<Display> {
 
   void KK() async {
     //Fake Data for testing 
-    //fakeGames();
+    fakeGames();
+    /* 
     try{
       final response = await http
         .get(Uri.parse('http://localhost:5083/Games?name=$name&auth=$auth'));
@@ -104,24 +105,24 @@ class _Display extends State<Display> {
     } on Exception{
       print("fail2");
     }
-    
+    */
   }
   void fakeGames() {
     List<Board> boar = List.empty(growable: true);
     boar.add(
-      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: false, photos: [0,2], id: 0)
+      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: true, photos: [0,2], id: 0)
     );
     boar.add((
-      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [1,2]))
+      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: true,photos: [1,2]))
     );
         boar.add((
       const Board( id: 4,players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
     );
         boar.add((
-      const Board( id: 4,players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [3,2]))
+      const Board( id: 4,players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: -1, gameDone: false  ,photos: [3,2]))
     );
         boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos: [0,2]))
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: 1, gameDone: true,photos: [0,2]))
     );
     for(Board bor in boar){
       setState(() {
@@ -182,29 +183,44 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
   Column MiddleBit;
   double fontSize;
   double width;
+  double nameWidth;
   if(data.size.width < data.size.height){
     width = data.size.  width / 1.3;
-    fontSize = 25;
+    nameWidth = (width/5) * 1.6;
+    fontSize = 20;
     MiddleBit = Column(
       children: [
-        const Text("Vs       ",style: TextStyle(color: Colors.red, fontSize: 25)),
-        Text(player,style: const TextStyle(color: Colors.red, fontSize: 20)),
+        const Text("Vs       ",style: TextStyle(color: Colors.white, fontSize: 25)),
+        Text(player,style: const TextStyle(color: Colors.white, fontSize: 20)),
 
     ]);
   } else {
     width = data.size.width / 1.4;
+    nameWidth = (width/5) * 2;
     fontSize = 50;
     MiddleBit = Column(
       children: [
-        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.red, fontSize: 31))]),
-        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.red, fontSize: 26))])
+        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.white, fontSize: 31))]),
+        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.white, fontSize: 26))])
     ]);
   }
+  Color color;
   Text text;
-  if(board.turn == emm){
-    text = Text( "Your Turn",style: TextStyle(color: Colors.green, fontSize: fontSize));
+  if(board.gameDone){
+    if(board.winner == 1){
+      color = Color.fromARGB(255, 18, 204, 27);
+      text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
+    } else {
+      text = Text( "Defeat",style: TextStyle(color: Colors.black, fontSize: fontSize));
+      color = Color.fromARGB(255, 223, 11, 11);
+    }
   } else {
-    text = Text( "Opponent Turn",style: TextStyle(color: Colors.red, fontSize: fontSize));
+    if(board.turn == emm){
+      text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 15, 2, 44), fontSize: fontSize));
+    } else {
+     text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));
+    }
+    color = Color.fromARGB(255, 19, 187, 230);
   }
   TextStyle sty = TextStyle(
     color: Colors.white,
@@ -213,8 +229,8 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
   return Padding(
     padding: const EdgeInsets.fromLTRB(0,10,0,5),
     child:ElevatedButton(
-      style: const ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(Colors.black),
+      style: ButtonStyle(
+        backgroundColor: MaterialStatePropertyAll(color),
       ),
       child:  Row(
         children: [
@@ -224,12 +240,12 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
             child: Image.asset("assets/images/$photo.png")
             ),
           SizedBox(
-            width: (width/5)*1.5,
+            width: (width/5)*1.3,
             height: 80,
             child: MiddleBit
             ),
           SizedBox(
-            width: (width/5)*1.5,
+            width: nameWidth,
             height: 75,
             child: Column(
               children:  [

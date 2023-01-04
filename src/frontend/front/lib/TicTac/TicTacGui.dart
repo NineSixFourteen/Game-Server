@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 Future<http.Response> fetchGame() async {
   return await http.get(Uri.parse('http:localhost/Game/get'));
 }
-
 // ignore: must_be_immutable, prefer_typing_uninitialized_variables
 class TicToeGame extends StatefulWidget {
   TicToeGame({super.key,required this.id,required this.auth});
@@ -19,7 +18,6 @@ class TicToeGame extends StatefulWidget {
   // ignore: no_logic_in_create_state
   State<TicToeGame> createState() => _TicToeGame(id, [],0,true,"1, 2", auth,0,false);
 }
-
 class _TicToeGame extends State<TicToeGame> {
   int id; 
   String players;
@@ -36,7 +34,6 @@ class _TicToeGame extends State<TicToeGame> {
     gameDone = false;
     getBoard();
   }
-
   void update(int val){
       switch(board[val]){
       case 0: 
@@ -44,19 +41,16 @@ class _TicToeGame extends State<TicToeGame> {
         sendMove(val);
         break;
     }
-
     setState(() {
       board = board;
     });
   }
-
   Future<void> sendMove(int move) async {
     print(auth);
       final Response = await http.get(Uri.parse(
         "http://localhost:5083/Game/makeMove?id=$id&move=$move&auth=$auth"
       ));
   }
-
   void updateBB() async{
     try{
       final response = await http
@@ -74,15 +68,16 @@ class _TicToeGame extends State<TicToeGame> {
     } on Exception{
     }
   }
-
   void getBoard(){
     Timer.periodic(const Duration(seconds: 5), 
       (timer) async {
         updateBB();
       });
   }
+  
   @override
   Widget build(BuildContext context) {
+    MediaQueryData data = MediaQuery.of(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -102,14 +97,13 @@ class _TicToeGame extends State<TicToeGame> {
       body: Column(
           children: [
             _buildPointsTable(players.split(", ")),
-            grid(board,update)
+            grid(board,update,data)
           ]
           ),
     );
   }
 }
-
-Widget tile(List<int> board, int pos, Function onTap){
+Widget tile(List<int> board, int pos, Function onTap, bool mob){
   var val = board[pos];
   const red = MaterialStatePropertyAll<Color>(Colors.red);
   const blue = MaterialStatePropertyAll<Color>(Colors.blue);
@@ -122,9 +116,15 @@ Widget tile(List<int> board, int pos, Function onTap){
       color = blue;
       msg = "O";
   }
+  double size;
+  if(mob){
+    size = 120;
+  } else {
+    size = 150;
+  }
   return SizedBox(
-    height: 150,
-    width:  150,
+    height: size,
+    width:  size,
     child: Padding(
         padding: const EdgeInsets.all(10),
         child:ElevatedButton(
@@ -163,17 +163,18 @@ Widget _buildPointsTable(List<String> players){
   );
 }
 
-Widget tileRow(List<int> grid, List<int> vals, Function func){
+Widget tileRow(List<int> grid, List<int> vals, Function func,bool mobile){
   return Column(
     children: [
-      tile(grid, vals[0],func),
-      tile(grid, vals[1],func),
-      tile(grid, vals[2],func),
+      tile(grid, vals[0],func,mobile),
+      tile(grid, vals[1],func,mobile),
+      tile(grid, vals[2],func,mobile),
     ],
   );
 }
 
-Widget grid(List<int> grid,Function func){
+Widget grid(List<int> grid,Function func, MediaQueryData data){
+  bool mobile = data.size.width < data.size.height ; 
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
@@ -181,9 +182,9 @@ Widget grid(List<int> grid,Function func){
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-             tileRow(grid,[0,3,6],func),
-             tileRow(grid,[1,4,7],func),
-             tileRow(grid,[2,5,8],func),
+             tileRow(grid,[0,3,6],func,mobile),
+             tileRow(grid,[1,4,7],func,mobile),
+             tileRow(grid,[2,5,8],func,mobile),
             ]))
     ]);
 }
