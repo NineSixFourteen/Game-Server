@@ -45,9 +45,9 @@ class _Display extends State<Display> {
 
   final field1 = TextEditingController();
   final field2 = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
+    KK();
     String name = glob.user;
     return Scaffold(
       appBar: AppBar(
@@ -74,7 +74,7 @@ class _Display extends State<Display> {
                 children: [
                   CardC(
                     StatsHeading(defaultHead(),data),
-                    StatsBody(data),
+                    StatsBody(data, anaylseGames()),
                     data,backG(Colors.black)
                   ),
                   filter(data),
@@ -86,7 +86,6 @@ class _Display extends State<Display> {
                   ElevatedButton(onPressed: ()=> KK(), child: const Text("Press ME"))])]
     ))]));
   }
-
 
   void KK() async {
     //Fake Data for testing 
@@ -155,6 +154,63 @@ class _Display extends State<Display> {
     field1.dispose();
     field2.dispose();
     super.dispose();
+  }  
+  List<List<int>> anaylseGames() {
+    List<List<int>> ret = List.empty(growable: true);
+    for(int i =0 ; i < 6; i++){
+      ret.add(List.filled(3,0, growable: true));
+    }
+    for(Board bo in boards){
+      int num = getPlayer(bo);
+      if(bo.board.length == 9){ // If TicTacToe
+        ret[0][1]++; 
+        if(bo.gameDone){ // If TicTacToeGame is Done
+          if(bo.winner == num){ // If win
+            ret[2][1]++; 
+          } else if(bo.winner == -1){ //If draws
+            ret[3][1]++;
+          } else { // if Lose
+            ret[4][1]++;
+          }
+        }else { // If TicTacToeGame is in progress
+          ret[5][1]++;
+        }
+      } else{ // If Connect4
+        ret[0][2]++;
+        if(bo.gameDone){ // If Connect4 is Done
+            if(bo.winner == num){ // If win
+            ret[2][1]++; 
+          } else if(bo.winner == -1){ //If draws
+            ret[3][1]++;
+          } else { // if Lose
+            ret[4][1]++;
+        } 
+        } else { // If Connect4 is in progress
+          ret[5][2]++;
+        }
+      }
+    }
+    ret[0][0] = ret[0][1] + ret[0][2]; // Total games played = tic games + con games
+    ret[2][0] = ret[2][1] + ret[2][2]; // Total of games won = tic wins + con wins
+    ret[3][0] = ret[3][1] + ret[3][2]; // Total of games loss 
+    ret[4][0] = ret[4][1] + ret[4][2]; // Total of games draw 
+    ret[5][0] = ret[5][1] + ret[5][0]; // Total of game incomplete
+    print(boards.length);
+    print(ret);
+    /*
+    ret[1][0] = (ret[0][0] * 100/ ret[2][0]).round() ; // Win rate = games won *100 / total games
+    ret[1][1] = (ret[0][1] * 100/ ret[2][1]).round() ;
+    ret[1][2] = (ret[0][2] * 100/ ret[2][2]).round() ;
+    */
+    return ret ;
+  }
+  
+  int getPlayer(Board bo) {
+    if(bo.players[0] == name){
+      return 1;
+    } else{
+      return 2;
+    }
   }
 }
 
@@ -208,11 +264,11 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
   Text text;
   if(board.gameDone){
     if(board.winner == 1){
-      color = Color.fromARGB(255, 18, 204, 27);
+      color = const Color.fromARGB(255, 18, 204, 27);
       text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
     } else {
       text = Text( "Defeat",style: TextStyle(color: Colors.black, fontSize: fontSize));
-      color = Color.fromARGB(255, 223, 11, 11);
+      color = const Color.fromARGB(255, 223, 11, 11);
     }
   } else {
     if(board.turn == emm){
@@ -220,7 +276,7 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
     } else {
      text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));
     }
-    color = Color.fromARGB(255, 19, 187, 230);
+    color = const Color.fromARGB(255, 19, 187, 230);
   }
   TextStyle sty = TextStyle(
     color: Colors.white,
@@ -417,21 +473,21 @@ SizedBox Boxx(String head, List<int> vals, MediaQueryData data){
       );
 }
 
-StatsBody(MediaQueryData data) {
+StatsBody(MediaQueryData data,List<List<int>> info) {
   return Row(
     children: [
       Column(
         children:  [
-          Boxx("Games Played",[100,90,10],data),
-          Boxx("Wins",[50,40,10], data),
-          Boxx("Draws",[5,3,2], data)
+          Boxx("Games Played",info[0],data),
+          Boxx("Wins",info[1], data),
+          Boxx("Draws",info[2], data)
         ],
       ),
       Column(
         children: [
-          Boxx("Win Rate",[100,90,10],data ),
-          Boxx("Losses",[50,40,10], data),
-          Boxx("Incomplete",[5,3,2], data)
+          Boxx("Win Rate",info[3],data ),
+          Boxx("Losses",info[4], data),
+          Boxx("Incomplete",info[5], data)
         ])]);
 } 
 
