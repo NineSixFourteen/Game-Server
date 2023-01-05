@@ -36,18 +36,42 @@ class _Display extends State<Display> {
     name = glob.user;
     auth = glob.auth;
   }
+
   String name;
   String auth;
   MediaQueryData data;
   Data glob;
+
   List<Board> boards = List.empty(growable: true);
+  List<Board> filteredBoards = List.empty(growable: true);
+  List<Board> displayBoards = List.empty(growable: true);
+  int start = 0;
+  int amount = 8;
+  List<String> playerNames = List.empty(growable: true);
+  var filters = [
+    "All",
+    "All",
+    "All",
+  ];
+
+  void changeFilters(int val, String newVal){
+    setState(() {
+      filters[val] = newVal;
+    });
+  }
+
   List<int> added = List.empty(growable: true);
+  
 
   final field1 = TextEditingController();
   final field2 = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    if(!playerNames.contains("All")){
+      playerNames.add("All");
+    }
     KK();
+    playerNames.remove(glob.user);
     String name = glob.user;
     return Scaffold(
       appBar: AppBar(
@@ -77,9 +101,9 @@ class _Display extends State<Display> {
                     StatsBody(data, anaylseGames()),
                     data,backG(Colors.black)
                   ),
-                  filter(data),
+                  filter(data,filters,changeFilters,playerNames),
                   Column(
-                    children: boards.map(
+                    children: displayBoards.map(
                       (board) => DisplayGame(board, glob,data,context)
                       ).toList(),
                   ),
@@ -87,9 +111,54 @@ class _Display extends State<Display> {
     ))]));
   }
 
+  void filterBoards(String player, String result, String gamemode){
+    setState(() {
+      filteredBoards = List.empty(growable: true);
+    });
+    for(Board bo in boards){
+      if(player != "All" ){
+        if(!bo.players.contains(player)){
+          continue;
+        }
+      }
+      if(result != "All"){
+        String res = findResult(bo);
+        if(res != result){
+          continue;
+        }
+      }
+      if(gamemode != "All"){
+        if(gamemode == "TicTacToe" && bo.board.length != 9){ // 9 tiles
+          continue;
+        } else if(gamemode == "Connect4" && bo.board.length != 49){ // 49 tiles
+          continue;
+        }
+      }
+      setState(() {
+        print("thru");
+        print(bo.players);
+        filteredBoards.add(bo);
+      });
+    }
+    for(Board bo in filteredBoards){
+      print(bo.players);
+    }
+  }
+
   void KK() async {
     //Fake Data for testing 
     fakeGames();
+    setState(() {
+      displayBoards = List.empty(growable: true);
+    });
+    filterBoards(filters[0],filters[1],filters[2]);
+    for(int i = start;i < start + amount;i++){
+      setState(() {
+        if(filteredBoards.length > i){
+          displayBoards.add(filteredBoards[i]);
+        }
+      });
+    }
     /* 
     try{
       final response = await http
@@ -109,24 +178,46 @@ class _Display extends State<Display> {
   void fakeGames() {
     List<Board> boar = List.empty(growable: true);
     boar.add(
-      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: -1, gameDone: true, photos: [0,2], id: 0)
+      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: 2, gameDone: true, photos: [0,2], id: 0)
     );
     boar.add((
-      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: true,photos: [1,2]))
+      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: 1, gameDone: true,photos: [1,2]))
     );
-        boar.add((
+    boar.add((
       const Board( id: 4,players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
     );
-        boar.add((
+    boar.add((
       const Board( id: 4,players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: -1, gameDone: false  ,photos: [3,2]))
     );
-        boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: 1, gameDone: true,photos: [0,2]))
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: 2, gameDone: true,photos: [0,2]))
+    );
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: 2, gameDone: true  ,photos: [3,2]))
+    );
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: -1, gameDone: true,photos: [3,2]))
+    );
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: 2, gameDone: true,photos: [3,2]))
+    );
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: 2, gameDone: true  ,photos: [3,2]))
+    );
+    boar.add((
+      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: -1, gameDone: true,photos: [3,2]))
     );
     for(Board bor in boar){
-      setState(() {
-        boards.add(bor);
-      });
+      if(!boards.contains(bor)){
+        for(String name in bor.players){
+          if(!playerNames.contains(name)){
+            playerNames.add(name);
+          }
+        }
+        setState(() {
+          boards.add(bor);
+        });
+      }
     }
   }
   void getGames(List<int> games) async {
@@ -179,11 +270,11 @@ class _Display extends State<Display> {
         ret[0][2]++;
         if(bo.gameDone){ // If Connect4 is Done
             if(bo.winner == num){ // If win
-            ret[2][1]++; 
+            ret[2][2]++; 
           } else if(bo.winner == -1){ //If draws
-            ret[3][1]++;
+            ret[3][2]++;
           } else { // if Lose
-            ret[4][1]++;
+            ret[4][2]++;
         } 
         } else { // If Connect4 is in progress
           ret[5][2]++;
@@ -195,13 +286,11 @@ class _Display extends State<Display> {
     ret[3][0] = ret[3][1] + ret[3][2]; // Total of games loss 
     ret[4][0] = ret[4][1] + ret[4][2]; // Total of games draw 
     ret[5][0] = ret[5][1] + ret[5][0]; // Total of game incomplete
-    print(boards.length);
-    print(ret);
-    /*
-    ret[1][0] = (ret[0][0] * 100/ ret[2][0]).round() ; // Win rate = games won *100 / total games
-    ret[1][1] = (ret[0][1] * 100/ ret[2][1]).round() ;
-    ret[1][2] = (ret[0][2] * 100/ ret[2][2]).round() ;
-    */
+    
+
+    ret[1][0] = (ret[2][0] * 100 / (ret[0][0] == 0 ? 1 : ret[0][0])).round() ; // Win rate = games won *100 / total games
+    ret[1][1] = (ret[2][1] * 100/ (ret[0][1] == 0 ? 1 : ret[0][1])).round() ;
+    ret[1][2] = (ret[2][2] * 100/ (ret[0][2] == 0 ? 1 : ret[0][2])).round() ;
     return ret ;
   }
   
@@ -212,15 +301,130 @@ class _Display extends State<Display> {
       return 2;
     }
   }
+  
+  String findResult(Board bo) {
+    if(bo.gameDone){
+      if(bo.winner == -1){
+        return "Draw";
+      }
+      int player = getPlayer(bo);
+      if(bo.winner == player){
+        return "Win";
+      } else {
+        return "Lose";
+      }
+    } else {
+      return "Incomplete";
+    }
+  }
 }
 
-Widget filter(MediaQueryData data) {
+Widget filter(MediaQueryData data, List<String> filters, Function change, List<String> playerNames) {
+  double width;
+  double height;
+  double fontSize;
   if(data.size.width < data.size.height){
-
+    width = 100;
+    height = 300;
+    fontSize = 30;
   } else {
-
+    width = 935;
+    height = 100;
+    fontSize = 24;
   }
-  return Text("s");
+  return SizedBox(
+    width: width,
+    height: height,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: height,
+            width: width/3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Player: ", style: TextStyle(fontSize: fontSize)),
+                Container(
+                  decoration: BoxDecoration(color: Colors.grey[300]),
+                  child: 
+                DropdownButton(
+                  style: TextStyle(color: Colors.purple, fontSize: fontSize),
+                  value: filters[0],
+                  items: playerNames.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                      change(0, newValue!);
+                  },
+                ))
+              ],
+            ),
+          ),
+          SizedBox(
+            height: height,
+            width: width/3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Result: ", style: TextStyle(fontSize: fontSize)),
+                Container(
+                  decoration: BoxDecoration(color: Colors.grey[300]),
+                  child: 
+                DropdownButton(
+                  style: TextStyle(color: Colors.purple, fontSize: fontSize),
+                  value: filters[1],
+                  items: ['All','Win', 'Lose', 'Draw', 'Incomplete'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                      change(1, newValue!);
+                  },
+                ))
+              ],
+            ),
+          ),
+          SizedBox(
+            height: height,
+            width: width/3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Gamemode: ", style: TextStyle(fontSize: fontSize)),
+                Container(
+                  decoration: BoxDecoration(color: Colors.grey[300]),
+                  child: 
+                DropdownButton(
+                  style: TextStyle(color: Colors.black, fontSize:fontSize),
+                  value: filters[2],
+                  items: ['All', 'TicTacToe', 'Connect4', ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                      change(2, newValue!);
+                  },
+                ))
+              ],
+            ),
+          ),
+        ],
+      )
+    )
+  );
+
 }
 
 Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext context){
@@ -263,7 +467,7 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
   Color color;
   Text text;
   if(board.gameDone){
-    if(board.winner == 1){
+    if(board.winner == emm + 1){
       color = const Color.fromARGB(255, 18, 204, 27);
       text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
     } else {
@@ -479,13 +683,13 @@ StatsBody(MediaQueryData data,List<List<int>> info) {
       Column(
         children:  [
           Boxx("Games Played",info[0],data),
-          Boxx("Wins",info[1], data),
-          Boxx("Draws",info[2], data)
+          Boxx("Wins",info[2], data),
+          Boxx("Draws",info[3], data)
         ],
       ),
       Column(
         children: [
-          Boxx("Win Rate",info[3],data ),
+          Boxx("Win Rate",info[1],data ),
           Boxx("Losses",info[4], data),
           Boxx("Incomplete",info[5], data)
         ])]);
