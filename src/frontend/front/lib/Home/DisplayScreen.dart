@@ -102,7 +102,7 @@ class _Display extends State<Display> {
                     data,backG(Colors.black)
                   ),
                   filter(data,filters,changeFilters,playerNames),
-                  NewGameScreen(data,playerNames),
+                  NewGameScreen(data,playerNames,glob),
                   Column(
                     children: displayBoards.map(
                       (board) => DisplayGame(board, glob,data,context)
@@ -230,24 +230,10 @@ class _Display extends State<Display> {
             }
           } 
       } on Exception{
-        print("fail");
       }
     }
   }
   
-  createGame(String name, String opp, int gamemode) async {
-    try{
-        final response = await http
-          .get(Uri.parse('http://localhost:5083/Game/Create?type=$gamemode&players=$name, $opp'));
-          if(response.statusCode == 200){
-            print(response.body);
-          } 
-      } on Exception{
-        print("fail");
-      }
-
-  }
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.

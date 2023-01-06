@@ -71,6 +71,9 @@ public class GameController: ControllerBase{
         }
         if(type ==1){
             String playerAuths = getPlayerAuths(players);
+            if(playerAuths == ""){
+                return "Error not players";
+            }
             DBContext.Games.Add(new Game(0,1,"000000000",players,playerAuths,0));
             DBContext.SaveChanges();
             var game = DBContext.Games.OrderByDescending(p => p.Id).FirstOrDefault();  
@@ -90,16 +93,20 @@ public class GameController: ControllerBase{
     }
 
     public string getPlayerAuths(string players){
-        string[] pls = players.Split(", ");
-        string ret = "";
-        foreach(string str in pls){
-            Console.WriteLine(str);
-            ret += DBContext.Users.ToList()
-                    .Where(user => user.Name == str)
-                    .Select(user => user.Token)
-                    .ToList()[0] + ", ";
+        try{
+            string[] pls = players.Split(", ");
+            string ret = "";
+            foreach(string str in pls){
+                Console.WriteLine(str);
+                ret += DBContext.Users.ToList()
+                        .Where(user => user.Name == str)
+                        .Select(user => user.Token)
+                        .ToList()[0] + ", ";
+            }
+            return ret.Substring(0, ret.Length - 2);
+        } catch (Exception ee){
+            return "";
         }
-        return ret.Substring(0, ret.Length - 2);
     }
 
 
