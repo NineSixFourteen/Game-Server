@@ -83,8 +83,8 @@ Widget CardC(Widget head, Widget bod, MediaQueryData data, BoxDecoration decorat
     width = data.size.width/1.35;
     height = data.size.height/2.4;
   } else{
-    width = data.size.width/1.1;
-  height = data.size.height/2.4;
+    width = data.size.width/1.04;
+    height = data.size.height/2.4;
   }
   return Card(child: Container(  
     decoration: decoration,
@@ -125,7 +125,7 @@ Widget StatsHeading(BoxDecoration dec, MediaQueryData data){
   if(data.size.width > data.size.height){
     width = data.size.width/1.364;
   }else{
-    width = data.size.width/1.13;
+    width = data.size.width/1.066;
   }
   return Row(
     children: [

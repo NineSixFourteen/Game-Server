@@ -1,14 +1,120 @@
-// ignore_for_file: file_names, non_constant_identifier_names
+// ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, must_be_immutable, camel_case_types, no_logic_in_create_state, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:front/Shared/Data.dart';
 
-Widget newGame(MediaQueryData data, BuildContext context, List<String> playerNames) {
-  double width;
-  String Opp = "Opp";
-  String Gamemode = "TicTacToe";
-  String Player = "Player1";
-  double fontSize;
-  if(data.size.width < data.size.height){
+
+Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Function func){
+  if(mobile){
+    return Column( 
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: newGameSel(fields,fontSize,true,func),
+        ),
+        createButton(fontSize,300,30)
+    ]);
+  } else{
+    List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func),growable: true);
+    widgets.add(createButton(fontSize - 5,300,100));
+    return Row( 
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: widgets,
+
+    );
+  }
+}
+
+Widget createButton(double fontSize, double width, double height){
+  return SizedBox(
+    width: width,
+    height: height,
+    child: ElevatedButton(
+      style: const ButtonStyle(
+        backgroundColor: MaterialStatePropertyAll(Colors.greenAccent)
+      ),
+      onPressed: (){},
+      child: Container(
+        decoration: const BoxDecoration(),
+        child: Text("Create", style: TextStyle(fontSize: fontSize)),
+      )));
+}
+
+List<Widget> newGameSel(List<String> fields, double fontSize,bool mobile, Function func){
+  if(mobile){
+    return  [
+        makeSelect("Player    ", fields, ["Opp", ], fontSize,mobile,0,func),
+        makeSelect("Player Number     ", fields, ["Player1", "Player2"], fontSize,mobile,1,func),
+        makeSelect("Gamemode    ", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func)
+      ];
+} else{
+    return  [
+      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Player ", fields, ["Opp", ], fontSize,mobile,0,func)),
+      Padding(padding: const EdgeInsets.all(40),child: makeSelect("Player Number", fields, ["Player1", "Player2"], fontSize,mobile,1,func)),
+      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Gamemode", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func))
+    ];
+}
+}
+
+Widget makeSelect(String title, List<String> fields, List<String> options, double fontSize, bool mobile, int val, Function func){
+  if(mobile){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+          Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
+          makeSelectHelper(fields, options, fontSize,val,func),
+        ]
+      );
+  } else{
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+          Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
+          makeSelectHelper(fields, options, fontSize,val,func),
+        ]
+      );
+  }
+}
+
+Widget makeSelectHelper(List<String> fields, List<String> options, double font, int val, Function func ){
+  String init = fields[val];
+  return DropdownButton(
+    dropdownColor: const Color.fromARGB(255, 50, 179, 146),
+    style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
+    alignment: Alignment.center,
+    value: init,
+    items: options.map((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList(),
+    onChanged: (String? newValue) {
+        init = newValue!;
+        func(val, newValue);
+    },
+  ) ;
+}
+
+class NewGameScreen extends StatefulWidget {
+  NewGameScreen(this.data,this.playerNames, {super.key});
+  MediaQueryData data;
+  List<String> playerNames;
+  @override
+  _NewGameScreen createState() => _NewGameScreen(data,playerNames);
+}
+
+class _NewGameScreen extends State<NewGameScreen> { 
+  _NewGameScreen(this.data, this.playerNames);
+  double width = 0;
+  MediaQueryData data;
+  List<String> playerNames;
+  double fontSize = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if(data.size.width < data.size.height){
     width = 370;
     fontSize = 20;
   } else {
@@ -42,105 +148,38 @@ Widget newGame(MediaQueryData data, BuildContext context, List<String> playerNam
       onPressed: () => {
         showModalBottomSheet(
           context: context, 
-          builder: (BuildContext context){
-            return SizedBox(
-              height: 200,
-              child: Container(
-                decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
-                child : CreateGameMenu(data.size.width < data.size.height, fontSize, Opp, Player, Gamemode))
-              );
-          })
-      },
-  ));
-}
-
-Widget CreateGameMenu(bool mobile, double fontSize, String Opp, String Player, String Gamemode){
-  if(mobile){
-    return Column( 
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: newGameSel(Opp,Player,Gamemode,fontSize,true),
-        ),
-        createButton(fontSize  ,300,30)
-    ]);
-  } else{
-    List<Widget> widgets = List.from(newGameSel(Opp,Player,Gamemode,fontSize - 5,false),growable: true);
-    widgets.add(createButton(fontSize - 5,300,100));
-    return Row( 
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: widgets,
-
-    );
+          builder: (_) => newMenu(data,playerNames,fontSize)
+        )
+      }));
   }
 }
 
-Widget createButton(double fontSize, double width, double height){
-  return SizedBox(
-    width: width,
-    height: height,
-    child: ElevatedButton(
-      style: const ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(Colors.greenAccent)
-      ),
-      onPressed: (){},
+class newMenu extends StatefulWidget {
+  newMenu(this.data,this.playerNames, this.fontSize, {super.key});
+  MediaQueryData data;
+  List<String> playerNames;
+  double fontSize;
+  @override
+  _newMenu createState() => _newMenu(data,fontSize);
+}
+
+class _newMenu extends State<newMenu> {
+  _newMenu( this.data,this.fontSize);
+  MediaQueryData data;
+  double fontSize;
+  List<String> Fields = ["Opp","Player1","TicTacToe"];
+  @override
+  Widget build(BuildContext context) {
+    void change(int val, String newVal){
+      setState(() {
+        Fields[val] = newVal;
+      });
+    }
+    return SizedBox(
+      height: 200,
       child: Container(
-        decoration: const BoxDecoration(),
-        child: Text("Create", style: TextStyle(fontSize: fontSize)),
-      )));
-}
-
-List<Widget> newGameSel(String Opp, String Player, String Gamemode, double fontSize,bool mobile){
-  if(mobile){
-    return  [
-        makeSelect("Player    ", Opp, ["Opp", ], fontSize,mobile),
-        makeSelect("Player Number     ", Player, ["Player1", "Player2"], fontSize,mobile),
-        makeSelect("Gamemode    ", Gamemode, ["TicTacToe", "Connect4"], fontSize,mobile)
-      ];
-} else{
-    return  [
-      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Player ", Opp, ["Opp", ], fontSize,mobile)),
-      Padding(padding: const EdgeInsets.all(40),child: makeSelect("Player Number", Player, ["Player1", "Player2"], fontSize,mobile)),
-      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Gamemode", Gamemode, ["TicTacToe", "Connect4"], fontSize,mobile))
-    ];
-}
-}
-
-Widget makeSelect(String title, String intial, List<String> options, double fontSize, bool mobile){
-  if(mobile){
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-          Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
-          makeSelectHelper(intial, options, fontSize),
-        ]
-      );
-  } else{
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-          Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
-          makeSelectHelper(intial, options, fontSize),
-        ]
+        decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
+        child : CreateGameMenu(data.size.width < data.size.height, fontSize,Fields,change))
       );
   }
-}
-
-Widget makeSelectHelper(String intial, List<String> options, double font){
-  return DropdownButton(
-    
-    style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
-    alignment: Alignment.center,
-    value: intial,
-    items: options.map((String value) {
-      return DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      );
-    }).toList(),
-    onChanged: (String? newValue) {
-        intial = newValue!;
-    },
-  ) ;
 }

@@ -63,8 +63,6 @@ class _Display extends State<Display> {
   }
 
   List<int> added = List.empty(growable: true);
-  
-
   final field1 = TextEditingController();
   final field2 = TextEditingController();
   @override
@@ -104,7 +102,7 @@ class _Display extends State<Display> {
                     data,backG(Colors.black)
                   ),
                   filter(data,filters,changeFilters,playerNames),
-                  newGame(data,context,playerNames),
+                  NewGameScreen(data,playerNames),
                   Column(
                     children: displayBoards.map(
                       (board) => DisplayGame(board, glob,data,context)
