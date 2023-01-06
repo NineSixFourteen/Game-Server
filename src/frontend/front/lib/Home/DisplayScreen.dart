@@ -4,10 +4,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
-import 'package:front/TicTac/TicTacGui.dart';
 import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import 'package:front/Home/DisplayHelper.dart';
+import 'package:front/Home/Stats.dart';
+import 'package:front/Home/GameDisplays.dart';
+import 'package:front/Home/Filter.dart';
+import 'package:front/Home/NewGame.dart';
 
 class DisplayScreen extends StatelessWidget {
   DisplayScreen(this.data, {super.key});
@@ -102,6 +105,7 @@ class _Display extends State<Display> {
                     data,backG(Colors.black)
                   ),
                   filter(data,filters,changeFilters,playerNames),
+                  newGame(data,context,playerNames),
                   Column(
                     children: displayBoards.map(
                       (board) => DisplayGame(board, glob,data,context)
@@ -135,13 +139,8 @@ class _Display extends State<Display> {
         }
       }
       setState(() {
-        print("thru");
-        print(bo.players);
         filteredBoards.add(bo);
       });
-    }
-    for(Board bo in filteredBoards){
-      print(bo.players);
     }
   }
 
@@ -238,6 +237,19 @@ class _Display extends State<Display> {
       }
     }
   }
+  
+  createGame(String name, String opp, int gamemode) async {
+    try{
+        final response = await http
+          .get(Uri.parse('http://localhost:5083/Game/Create?type=$gamemode&players=$name, $opp'));
+          if(response.statusCode == 200){
+            print(response.body);
+          } 
+      } on Exception{
+        print("fail");
+      }
+
+  }
 
   @override
   void dispose() {
@@ -286,11 +298,9 @@ class _Display extends State<Display> {
     ret[3][0] = ret[3][1] + ret[3][2]; // Total of games loss 
     ret[4][0] = ret[4][1] + ret[4][2]; // Total of games draw 
     ret[5][0] = ret[5][1] + ret[5][0]; // Total of game incomplete
-    
-
-    ret[1][0] = (ret[2][0] * 100 / (ret[0][0] == 0 ? 1 : ret[0][0])).round() ; // Win rate = games won *100 / total games
-    ret[1][1] = (ret[2][1] * 100/ (ret[0][1] == 0 ? 1 : ret[0][1])).round() ;
-    ret[1][2] = (ret[2][2] * 100/ (ret[0][2] == 0 ? 1 : ret[0][2])).round() ;
+    ret[1][0] = (ret[2][0] * 100 / (ret[0][0] - ret[5][0] == 0 ? 1 : ret[0][0] - ret[5][0])).round() ; // Win rate = games won *100 / total games
+    ret[1][1] = (ret[2][1] * 100 / (ret[0][1] - ret[5][1] == 0 ? 1 : ret[0][1] - ret[5][1])).round() ;
+    ret[1][2] = (ret[2][2] * 100 / (ret[0][2] - ret[5][2] == 0 ? 1 : ret[0][2] - ret[5][2])).round() ;
     return ret ;
   }
   
@@ -319,381 +329,8 @@ class _Display extends State<Display> {
   }
 }
 
-Widget filter(MediaQueryData data, List<String> filters, Function change, List<String> playerNames) {
-  double width;
-  double height;
-  double fontSize;
-  if(data.size.width < data.size.height){
-    width = 100;
-    height = 300;
-    fontSize = 30;
-  } else {
-    width = 935;
-    height = 100;
-    fontSize = 24;
-  }
-  return SizedBox(
-    width: width,
-    height: height,
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: height,
-            width: width/3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Player: ", style: TextStyle(fontSize: fontSize)),
-                Container(
-                  decoration: BoxDecoration(color: Colors.grey[300]),
-                  child: 
-                DropdownButton(
-                  style: TextStyle(color: Colors.purple, fontSize: fontSize),
-                  value: filters[0],
-                  items: playerNames.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                      change(0, newValue!);
-                  },
-                ))
-              ],
-            ),
-          ),
-          SizedBox(
-            height: height,
-            width: width/3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Result: ", style: TextStyle(fontSize: fontSize)),
-                Container(
-                  decoration: BoxDecoration(color: Colors.grey[300]),
-                  child: 
-                DropdownButton(
-                  style: TextStyle(color: Colors.purple, fontSize: fontSize),
-                  value: filters[1],
-                  items: ['All','Win', 'Lose', 'Draw', 'Incomplete'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                      change(1, newValue!);
-                  },
-                ))
-              ],
-            ),
-          ),
-          SizedBox(
-            height: height,
-            width: width/3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Gamemode: ", style: TextStyle(fontSize: fontSize)),
-                Container(
-                  decoration: BoxDecoration(color: Colors.grey[300]),
-                  child: 
-                DropdownButton(
-                  style: TextStyle(color: Colors.black, fontSize:fontSize),
-                  value: filters[2],
-                  items: ['All', 'TicTacToe', 'Connect4', ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                      change(2, newValue!);
-                  },
-                ))
-              ],
-            ),
-          ),
-        ],
-      )
-    )
-  );
-
-}
-
-Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext context){
-  String player = "";
-  List<String> players = board.players;
-  int emm = 0;
-  int moves = getMoves(board.board);
-  int photo = 0;
-    for(int i = 0; i < 2;i++){
-    if(players[i] != glob.user){
-      player = players[i];
-      emm = i == 1 ? 0 : 1;
-      photo = board.photos[i];
-    }
-  }
-  Column MiddleBit;
-  double fontSize;
-  double width;
-  double nameWidth;
-  if(data.size.width < data.size.height){
-    width = data.size.  width / 1.3;
-    nameWidth = (width/5) * 1.6;
-    fontSize = 20;
-    MiddleBit = Column(
-      children: [
-        const Text("Vs       ",style: TextStyle(color: Colors.white, fontSize: 25)),
-        Text(player,style: const TextStyle(color: Colors.white, fontSize: 20)),
-
-    ]);
-  } else {
-    width = data.size.width / 1.4;
-    nameWidth = (width/5) * 2;
-    fontSize = 50;
-    MiddleBit = Column(
-      children: [
-        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.white, fontSize: 31))]),
-        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.white, fontSize: 26))])
-    ]);
-  }
-  Color color;
-  Text text;
-  if(board.gameDone){
-    if(board.winner == emm + 1){
-      color = const Color.fromARGB(255, 18, 204, 27);
-      text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
-    } else {
-      text = Text( "Defeat",style: TextStyle(color: Colors.black, fontSize: fontSize));
-      color = const Color.fromARGB(255, 223, 11, 11);
-    }
-  } else {
-    if(board.turn == emm){
-      text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 15, 2, 44), fontSize: fontSize));
-    } else {
-     text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));
-    }
-    color = const Color.fromARGB(255, 19, 187, 230);
-  }
-  TextStyle sty = TextStyle(
-    color: Colors.white,
-    fontSize: data.size.height/20
-  );
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(0,10,0,5),
-    child:ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(color),
-      ),
-      child:  Row(
-        children: [
-          SizedBox(
-            width: width/5,
-            height: 100,
-            child: Image.asset("assets/images/$photo.png")
-            ),
-          SizedBox(
-            width: (width/5)*1.3,
-            height: 80,
-            child: MiddleBit
-            ),
-          SizedBox(
-            width: nameWidth,
-            height: 75,
-            child: Column(
-              children:  [
-                text
-            ])
-          ),
-          SizedBox(
-            width:  120,
-            height: 75,
-            child: Column(
-              children: [
-                ShowBoard(board.board,data)
-            ])
-            ),
-    ]),
-      onPressed: () => {loadGame(board.id, context,glob.auth)},
-  ));
-}
 
 
-  void loadGame(int gameID, BuildContext context, String auth){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => TicToeGame(id:gameID, auth:auth)),
-      );
-  }
-
-int getMoves(List<int> board) {
-  int moves =0;
-  for(int i =0 ;i < board.length;i++){
-    if(board[i] != 0){
-      moves++;
-    }
-  }
-  return moves; 
-}
-
-Widget ShowBoard(List<int> board, MediaQueryData data) {
-  Widget wid;
-  double width;
-  double height;
-  if(data.size.width < data.size.height){
-    width = 40;
-    height = 25 ;
-  }  else {
-    width = 40;
-    height = 25;
-  } 
-  if(board.length == 9){
-    wid = Row(
-      children: [
-        Column(
-          children: [
-            smallTile(board[0],width,height),
-            smallTile(board[3],width,height),
-            smallTile(board[6],width,height)
-          ],
-        ),
-        Column(
-          children: [
-            smallTile(board[1],width,height),
-            smallTile(board[4],width,height),
-            smallTile(board[7],width,height)
-          ],
-        ),
-        Column(
-          children: [
-            smallTile(board[2],width,height),
-            smallTile(board[5],width,height),
-            smallTile(board[8],width,height)
-          ],
-        )
-      ],
-    );
-  } else{
-    wid = const Text("Connect4", style: TextStyle(color: Colors.red),);
-  }
-  return wid;
-}
-
-BoxDecoration backG(Color color){
-  return const 
-    BoxDecoration(
-      color: Colors.blueGrey  ,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black,
-          offset: Offset(0,0),
-          blurRadius: 4.0,
-          spreadRadius: 4.0
-      )]
-    );
-}
-
-Widget smallTile(int val, double width, double height){
-  const red = MaterialStatePropertyAll<Color>(Colors.red);
-  const blue = MaterialStatePropertyAll<Color>(Colors.blue);
-  var color = MaterialStatePropertyAll<Color>(Colors.grey[500]!);
-  var msg = " ";
-  if(val == 2){
-    color = red;
-    msg = "X";
-  } else if(val == 1){
-    color = blue;
-    msg = "O";
-  }
-  return SizedBox(
-    height: height,
-    width:  width,
-    child: ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: color,
-        ),
-        onPressed: () => {}, 
-            child: Text(
-              msg,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
-              textAlign: TextAlign.left,
-        ))
-      );
-}
-
-SizedBox Boxx(String head, List<int> vals, MediaQueryData data){
-  int total = vals[0];
-  int tic = vals[1];
-  int row = vals[2];
-  Column text;
- double width;
-  double height;
-  if(data.size.width < data.size.height){
-    height = 96;
-    width = data.size.width/2.22;
-    text = Column(
-      children: [
-      Text(
-          head,
-          style: const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 21, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-      Text(
-      "Total: $total \n  TictacToe: $tic\n  Connect4: $row",
-      style: const TextStyle(color: Colors.white, fontSize: 19),
-      textAlign: TextAlign.center,
-    )]);
-  } else{
-    height = 78;
-    width = data.size.width/2.7;
-    text = Column(
-      children: [
-        Text(
-          head,
-          style: const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 31, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          "Total: $total TictacToe: $tic Connect4: $row",
-          style: const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 27, ),
-          textAlign: TextAlign.center,
-        )
-      ]);
-  } 
-  return SizedBox(
-        width: width,
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0,0,0,0),
-          child: text
-        )
-      );
-}
-
-StatsBody(MediaQueryData data,List<List<int>> info) {
-  return Row(
-    children: [
-      Column(
-        children:  [
-          Boxx("Games Played",info[0],data),
-          Boxx("Wins",info[2], data),
-          Boxx("Draws",info[3], data)
-        ],
-      ),
-      Column(
-        children: [
-          Boxx("Win Rate",info[1],data ),
-          Boxx("Losses",info[4], data),
-          Boxx("Incomplete",info[5], data)
-        ])]);
-} 
 
 
 

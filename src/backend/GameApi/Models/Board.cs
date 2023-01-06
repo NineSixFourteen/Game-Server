@@ -1,11 +1,11 @@
 public class GameStatus {
-    public GameStatus(string st, int tu, int win, bool gamdo, string[] plrs){
+    public GameStatus(string st, int tu, int win, bool gamdo, string[] plrs,int[] photos){
         state = st;
         turn = tu;
         winner = win;
         isGameDone = gamdo;
         players = plrs;
-        photos = new int[]{2,3};
+        this.photos = photos;
     }
     public string state {get;set;}
     public int turn {get;set;}

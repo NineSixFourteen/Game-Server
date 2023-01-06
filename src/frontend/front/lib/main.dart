@@ -1,7 +1,6 @@
 import 'package:front/Shared/Data.dart';
 import 'package:front/Home/Home.dart';
 
-import 'TicTac/TicTacGui.dart';
 import 'package:flutter/material.dart';
 
 void main() {

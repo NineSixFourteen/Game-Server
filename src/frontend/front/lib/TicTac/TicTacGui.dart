@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -46,7 +46,6 @@ class _TicToeGame extends State<TicToeGame> {
     });
   }
   Future<void> sendMove(int move) async {
-    print(auth);
       final Response = await http.get(Uri.parse(
         "http://localhost:5083/Game/makeMove?id=$id&move=$move&auth=$auth"
       ));

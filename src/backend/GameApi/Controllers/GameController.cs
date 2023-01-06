@@ -69,20 +69,40 @@ public class GameController: ControllerBase{
         if(_gameService == null){
             return NotFound();
         }
-        DBContext.Games.Add(new Game(0,1,"000000000","Test1, player1","SxPxTtZQ, p64lPhBr",0));
-        DBContext.SaveChanges();
-        var game = DBContext.Games.OrderByDescending(p => p.Id).FirstOrDefault();  
-        if(game != null){
-            var result = _gameService.AddGame(game);
-            if(result is Maybe<MyError>.Some  error){
-                return new ActionResult<string>(error.Value.getError());
-            }
+        if(type ==1){
+            String playerAuths = getPlayerAuths(players);
+            DBContext.Games.Add(new Game(0,1,"000000000",players,playerAuths,0));
+            DBContext.SaveChanges();
+            var game = DBContext.Games.OrderByDescending(p => p.Id).FirstOrDefault();  
+            if(game != null){
+                var result = _gameService.AddGame(game);
+                if(result is Maybe<MyError>.Some  error){
+                    return new ActionResult<string>(error.Value.getError());
+                }
 
+            } else{
+                return new ActionResult<string>("Error cant find new game");
+            }
+            return new ActionResult<string>("Game has been added");
         } else{
-            return new ActionResult<string>("Error cant find new game");
+            return "Not sssssdsdsds";
         }
-        return new ActionResult<string>("Game has been added");
     }
+
+    public string getPlayerAuths(string players){
+        string[] pls = players.Split(", ");
+        string ret = "";
+        foreach(string str in pls){
+            Console.WriteLine(str);
+            ret += DBContext.Users.ToList()
+                    .Where(user => user.Name == str)
+                    .Select(user => user.Token)
+                    .ToList()[0] + ", ";
+        }
+        return ret.Substring(0, ret.Length - 2);
+    }
+
+
     [HttpGet]
     public ActionResult<List<Game>> GetGames(){
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
@@ -100,7 +120,7 @@ public class GameController: ControllerBase{
                 return new GameStatus(
                     ga.State, ga.turn,
                     game.Value.getWinner(), game.Value.isGameComplete(), 
-                    ga.players.Split(", ").ToArray());
+                    ga.players.Split(", ").ToArray(),new int[]{2,3});
             }    
         } else {
             load(id);
