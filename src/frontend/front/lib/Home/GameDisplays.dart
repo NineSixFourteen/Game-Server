@@ -50,7 +50,7 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
       text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
     } else if(board.winner == -1){
       text = Text( "Draw",style: TextStyle(color: Colors.black, fontSize: fontSize));
-      color = const Color.fromARGB(255, 223, 11, 11);
+      color = const Color.fromARGB(255, 63, 17, 65);
     } else {
       text = Text( "Defeat",style: TextStyle(color: Colors.black, fontSize: fontSize));
       color = const Color.fromARGB(255, 223, 11, 11);
