@@ -60,6 +60,8 @@ class _Display extends State<Display> {
     setState(() {
       filters[val] = newVal;
     });
+    filterBoards(filters[0],filters[1],filters[2]);
+    updateDisplayBoards();
   }
 
   List<int> added = List.empty(growable: true);
@@ -70,7 +72,6 @@ class _Display extends State<Display> {
     if(!playerNames.contains("All")){
       playerNames.add("All");
     }
-    KK();
     playerNames.remove(glob.user);
     String name = glob.user;
     return Scaffold(
@@ -139,23 +140,15 @@ class _Display extends State<Display> {
         filteredBoards.add(bo);
       });
     }
+    print(filteredBoards.length);
   }
 
   void KK() async {
     //Fake Data for testing 
-    fakeGames();
+    //fakeGames();
     setState(() {
       displayBoards = List.empty(growable: true);
     });
-    filterBoards(filters[0],filters[1],filters[2]);
-    for(int i = start;i < start + amount;i++){
-      setState(() {
-        if(filteredBoards.length > i){
-          displayBoards.add(filteredBoards[i]);
-        }
-      });
-    }
-    /* 
     try{
       final response = await http
         .get(Uri.parse('http://localhost:5083/Games?name=$name&auth=$auth'));
@@ -164,12 +157,13 @@ class _Display extends State<Display> {
             List<String> l = response.body.substring(1, response.body.length - 1).split(",");
             List<int> nums = l.map((e) => int.parse(e)).toList();
             getGames(nums);
-          }
-        } 
-    } on Exception{
-      print("fail2");
+            filterBoards(filters[0],filters[1],filters[2]);
+            updateDisplayBoards();
+        }
+    }} catch (Exception){
+      print(Exception);
     }
-    */
+    
   }
   void fakeGames() {
     List<Board> boar = List.empty(growable: true);
@@ -224,8 +218,14 @@ class _Display extends State<Display> {
           if(response.statusCode == 200){
             if(response.body != "Error: User not found" && !added.contains(n)) {
               added.add(n);
+              Board bor = Board.fromJson(jsonDecode(response.body),n);
+              for(String name in bor.players){
+                if(!playerNames.contains(name)){
+                  playerNames.add(name);
+                }
+              }
               setState(()  {
-                boards.add(Board.fromJson(jsonDecode(response.body),n));
+                boards.add(bor);
               });
             }
           } 
@@ -241,6 +241,7 @@ class _Display extends State<Display> {
     field2.dispose();
     super.dispose();
   }  
+
   List<List<int>> anaylseGames() {
     List<List<int>> ret = List.empty(growable: true);
     for(int i =0 ; i < 6; i++){
@@ -309,6 +310,16 @@ class _Display extends State<Display> {
     } else {
       return "Incomplete";
     }
+  }
+  
+  void updateDisplayBoards() {
+    displayBoards = List.empty(growable: true);
+    for(int i = start;i < start + amount;i++){
+      setState(() {
+        if(filteredBoards.length > i){
+          displayBoards.add(filteredBoards[i]);
+        }
+      });}
   }
 }
 

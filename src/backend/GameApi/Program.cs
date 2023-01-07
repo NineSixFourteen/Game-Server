@@ -5,12 +5,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<ITrack, Tracker>();
 builder.Services.AddSingleton<IGameService, GameServer>();
 builder.Services.AddScoped<DataContext,DataContext>(); 
+builder.Services.AddSingleton<ISock, Socker>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMvc();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -20,7 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseWebSockets();
 
 app.MapControllers();
 

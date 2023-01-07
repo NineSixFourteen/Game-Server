@@ -27,8 +27,7 @@ public class TicTacToe : PlayableGame{
     }
     public bool isGameComplete(){
         if(!gameComplete){
-            bool winner = checkWinner();
-            if(winner){
+            if(checkWinner()){
                 gameComplete = true;
                 return true;
             }

@@ -56,7 +56,7 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
       color = const Color.fromARGB(255, 223, 11, 11);
     }
   } else {
-    if(board.turn == emm){
+    if(board.turn == emm ){
       text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 15, 2, 44), fontSize: fontSize));
     } else {
      text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));

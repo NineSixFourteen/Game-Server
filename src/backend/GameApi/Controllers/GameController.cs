@@ -92,7 +92,7 @@ public class GameController: ControllerBase{
         }
     }
 
-    public string getPlayerAuths(string players){
+    private string getPlayerAuths(string players){
         try{
             string[] pls = players.Split(", ");
             string ret = "";
@@ -104,16 +104,16 @@ public class GameController: ControllerBase{
                         .ToList()[0] + ", ";
             }
             return ret.Substring(0, ret.Length - 2);
-        } catch (Exception ee){
+        } catch (Exception){
             return "";
         }
     }
 
-
     [HttpGet]
     public ActionResult<List<Game>> GetGames(){
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
-   }
+    }
+
    [HttpGet("Get")]
     public ActionResult<GameStatus> Get(int id){
         if(_gameService == null){
@@ -137,6 +137,7 @@ public class GameController: ControllerBase{
     }
     [HttpGet("MakeMove")]
     public ActionResult<string> makeMove(int id, string move, string auth){
+        Console.WriteLine(id);
         if(Tracker.getList().FirstOrDefault(ids => ids == id) != 0){
             var x = _gameService.makeMove(id,move,auth);
             if(x is Maybe<MyError>.Some z){
@@ -145,17 +146,13 @@ public class GameController: ControllerBase{
                 return "Move Made";
             }
         } else {
-            var x = loadGame(id);
-            if(x is Maybe<MyError>.Some err){
-                return err.Value.getError();
+            load(id);
+            var y = _gameService.makeMove(id,move,auth);
+            if(y is Maybe<MyError>.Some z){
+                return z.Value.getError();
             } else {
-                var y = _gameService.makeMove(id,move,auth);
-                if(y is Maybe<MyError>.Some z){
-                    return z.Value.getError();
-                } else {
-                    return "Move Made";
-                }
+                return "Move Made";
             }
         }
-    }
+    }   
 }

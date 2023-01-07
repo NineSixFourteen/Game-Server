@@ -17,6 +17,7 @@ public class UserController : ControllerBase{
 
     [HttpGet("/Create")]
     public ActionResult<string> AddUser(String name, String password){
+        Console.WriteLine(name);
         String str = "";
         Users.ForEach( 
             user => {

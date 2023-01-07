@@ -56,12 +56,14 @@ class _TicToeGame extends State<TicToeGame> {
             .get(Uri.parse('http://localhost:5083/Game/Get?id=$id'));
       if(response.statusCode == 200){
         var x = Board.fromJson(jsonDecode(response.body),id);
+        if (this.mounted) {
         setState(() {
             board = x.board;
             winner = x.winner;
             gameDone = x.gameDone;
             turn = true;
           });
+        }
       } 
     // ignore: empty_catches
     } on Exception{
