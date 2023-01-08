@@ -148,6 +148,7 @@ class _Display extends State<Display> {
     //fakeGames();
     setState(() {
       displayBoards = List.empty(growable: true);
+      boards = List.empty(growable: true);
     });
     try{
       final response = await http

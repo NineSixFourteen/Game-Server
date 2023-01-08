@@ -1,6 +1,7 @@
 // ignore_for_file: file_names, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Shared/Data.dart';
 import '../TicTac/TicBoard.dart';
 import '../TicTac/TicTacGui.dart';
@@ -103,9 +104,12 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
 }
 
 void loadGame(int gameID, BuildContext context, String auth){
+    final channel = WebSocketChannel.connect(
+      Uri.parse('ws://localhost:5083/connect?id=$gameID'),
+    );
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => TicToeGame(id:gameID, auth:auth)),
+      MaterialPageRoute(builder: (_) => TicToeGame(id:gameID, auth:auth,socket: channel,)),
     );
 }
 

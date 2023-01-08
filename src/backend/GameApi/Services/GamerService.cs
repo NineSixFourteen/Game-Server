@@ -58,7 +58,6 @@ public class GameServer : IGameService {
         }
     }
 
-
     public Maybe<MyError> makeMove(int id,string move, string auth){
         Maybe<PlayableGame> MayGame = GetGame(id);
         if(MayGame is Maybe<PlayableGame>.Some game){

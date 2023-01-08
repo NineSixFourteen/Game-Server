@@ -1,21 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Net.WebSockets;
 using System;
+using System.Text;
 using GamePlayer.Game;
 using GamePlayer.MyError;
 using GamePlayer.PlayableGame;
 using Helpers.Maybe;
+using System.Threading.Tasks;
+
 namespace GameApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 public class GameController: ControllerBase{
+    private ISock _Sock;
     private IGameService _gameService;
     private ITrack Tracker;
     private readonly DataContext DBContext;
-    public GameController(IGameService gameService, DataContext DBContext, ITrack tracker){
+    public GameController(IGameService gameService, DataContext DBContext, ITrack tracker, ISock sock ){
         _gameService = gameService;
         this.DBContext = DBContext;
         Tracker = tracker;
+        _Sock = sock;
     }
     [HttpGet("Load")]
     public ActionResult<string> load(int id){
@@ -135,8 +141,8 @@ public class GameController: ControllerBase{
         }
         return NotFound();
     }
-    [HttpGet("MakeMove")]
-    public ActionResult<string> makeMove(int id, string move, string auth){
+
+    private string makeMove(int id, string move, string auth){
         Console.WriteLine(id);
         if(Tracker.getList().FirstOrDefault(ids => ids == id) != 0){
             var x = _gameService.makeMove(id,move,auth);
@@ -155,4 +161,46 @@ public class GameController: ControllerBase{
             }
         }
     }   
+
+    //Socket Stuff
+    [Route("/connect")]
+    public async Task Conne(int id){
+        Socket soc = new Socket("");
+        _Sock.addSocket(id,soc);
+        Console.WriteLine("Connection - " + User);
+        try{
+            if (HttpContext.WebSockets.IsWebSocketRequest){
+                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                soc.AddSocket(webSocket);
+                await Listen(soc.Sock);
+            } else {
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            }
+        } catch(Exception) {
+            Console.WriteLine("Closed Socket - " + User);
+        }
+        Console.WriteLine(_Sock.getLookup().Count );
+    }
+
+    private async Task Listen(WebSocket webSocket){
+        byte[] buffer = new byte[1056];
+        while (webSocket.State == WebSocketState.Open){
+            var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
+            if (result.MessageType == WebSocketMessageType.Close){
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+            } else{
+                Console.WriteLine("Message Got");
+                String mes = Encoding.ASCII.GetString(buffer, 0, result.Count);
+                String[] items = mes.Split(",");
+                int id = Int32.Parse(items[0]);
+                string s = makeMove(id, items[1], items[2]);
+                if(s == "Move Made"){
+                    if(_gameService.getBoard(id) is Maybe<PlayableGame>.Some game){
+                        await _Sock.SendOut(id, game.Value);
+                    }
+                }
+            }
+        }
+    }
+
 }

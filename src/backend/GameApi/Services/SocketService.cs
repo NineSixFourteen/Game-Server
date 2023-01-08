@@ -1,22 +1,41 @@
+using System.Collections.Generic;
+using GamePlayer.PlayableGame;
+
 public interface ISock {
 
-    List<Socket> getList();
-    void addSocket(Socket newSock);
+    Dictionary<int,List<Socket>> getLookup();
+    Task<bool> SendOut(int id, PlayableGame game);
+    void addSocket(int id, Socket newSock);
 }
 
 public class Socker : ISock {
 
-    public List<Socket> socks {get;set;} 
+    public Dictionary<int,List<Socket>> Lookup {get;set;} 
 
     public Socker(){
-        socks = new List<Socket>();
+        Lookup = new Dictionary<int,List<Socket>>();
     }
 
-    public List<Socket> getList(){
-        return socks;
+    public async Task<bool> SendOut(int id, PlayableGame game){
+        foreach(Socket sock in Lookup[id]){
+            if(!await sock.SendBoard(game)){
+                return false;
+            }
+        }
+        return true;
     }
 
-    public void addSocket(Socket newSock){
-        socks.Add(newSock);
+    public Dictionary<int,List<Socket>> getLookup(){
+        return Lookup;
+    }
+
+    public void addSocket(int id, Socket newSock){
+        if(Lookup.ContainsKey(id)){
+            Lookup[id].Add(newSock);
+        } else {
+            List<Socket> socs = new List<Socket>();
+            socs.Add(newSock);
+            Lookup[id] = socs;
+        }
     }
 }
