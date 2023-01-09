@@ -80,7 +80,7 @@ class _newMenu extends State<newMenu> {
   MediaQueryData data;
   double fontSize;
   Data glob;
-  List<String> Fields = ["player1","Player1","TicTacToe"];
+  List<String> Fields = ["player1","Player1","TicTacToe",""];
   @override
   Widget build(BuildContext context) {
     void change(int val, String newVal){
@@ -107,8 +107,6 @@ Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Functio
             children: newGameSel(fields,fontSize,true,func),
         ),
         createButton(fontSize,280,40,context,fields, user)
-
-        
     ]);
   } else{
     List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func),growable: true);
@@ -124,6 +122,7 @@ Widget createButton(double fontSize, double width, double height, BuildContext c
   return InkWell(
     onTap: () {
       createNewGame(fields,user,context);
+
     },
     // ignore: prefer_const_constructors
     child: Container(
@@ -168,17 +167,37 @@ void GameCreation(BuildContext context,bool suc) {
 List<Widget> newGameSel(List<String> fields, double fontSize,bool mobile, Function func){
   if(mobile){
     return  [
-        makeSelect("Player    ", fields, ["player1", ], fontSize,mobile,0,func),
+        makePlayerSelect("Player    ", fields, ["player1","New"], fontSize,mobile,0,func),
         makeSelect("Player Number     ", fields, ["Player1", "Player2"], fontSize,mobile,1,func),
         makeSelect("Gamemode    ", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func)
       ];
 } else{
     return  [
-      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Player ", fields, ["player1", ], fontSize,mobile,0,func)),
+      makePlayerSelect("Player ", fields, ["player1", "New" ], fontSize,mobile,0,func),
       Padding(padding: const EdgeInsets.all(40),child: makeSelect("Player Number", fields, ["Player1", "Player2"], fontSize,mobile,1,func)),
       Padding(padding: const EdgeInsets.all(30),child: makeSelect("Gamemode", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func))
     ];
 }
+}
+
+Widget makePlayerSelect(String title, List<String> fields, List<String> options, double fontSize, bool mobile, int val, Function func){
+    if(mobile){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+            Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
+            makePlayerSelHelper(fields, options, fontSize,val,func),
+          ]
+        );
+  } else{
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+          Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
+          makePlayerSelHelper(fields, options, fontSize,val,func),
+        ]
+      );
+  }
 }
 
 Widget makeSelect(String title, List<String> fields, List<String> options, double fontSize, bool mobile, int val, Function func){
@@ -221,10 +240,63 @@ Widget makeSelectHelper(List<String> fields, List<String> options, double font, 
   ) ;
 }
 
+Widget makePlayerSelHelper(List<String> fields, List<String> options, double font, int val, Function func ){
+  String init = fields[val];
+  String player = "";
+  TextEditingController mycontroller = TextEditingController();
+  if(fields[0] == "New"){
+    print("Hell");
+  }
+  Widget wid = DropdownButton(
+      dropdownColor: const Color.fromARGB(255, 50, 179, 146),
+      style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
+      alignment: Alignment.center,
+      value: init,
+      items: options.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+          func(val, newValue);
+      },
+    ) ;
+  if(init == "New"){
+    return  Column(
+      children: [
+        wid,
+        SizedBox(
+          width: 140, 
+          height: 70, 
+          child: 
+              TextField(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText:'User Name',
+              hintText:'Enter Your Name',
+              ),
+              onChanged: (String? me) => {
+                func(3, me)
+                } )),
+        ]);
+            
+
+  
+  } else {
+    return wid;
+  }
+}
+
 void createNewGame(List<String> data, String user, BuildContext context){
   int pos = data[1] == "Player1" ? 1 : 2;
   int gamemode = data[2] == "TicTacToe" ? 1 : 2;
-  createNewGameHelper(data[0], user, pos, gamemode, context);
+  if(data[0] == "New"){
+    createNewGameHelper(data[3], user, pos, gamemode, context);
+  } else {
+    createNewGameHelper(data[0], user, pos, gamemode, context);
+  }
+
 }
 
 void createNewGameHelper(String Opponent, String user,int pos, int type, BuildContext context) async{
