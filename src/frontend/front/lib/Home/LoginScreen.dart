@@ -51,7 +51,7 @@ class _Login extends State<Login> {
     try{
       // ignore: unused_local_variable
       final response = await http
-        .get(Uri.parse('http://localhost:5083/Login?name=$name&pass=$Password'));
+        .get(Uri.parse('https://game-sev.azurewebsites.net/Login?name=$name&pass=$Password'));
         if(response.statusCode == 200){
           if(response.body != "Error: User not found") {
             glob.auth = response.body;

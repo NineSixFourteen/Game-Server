@@ -109,10 +109,10 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
 void loadGame(int gameID, BuildContext context, String auth, String name) async{
     try{
       final channel = WebSocketChannel.connect(
-        Uri.parse('ws://localhost:5083/connect?id=$gameID'),
+        Uri.parse('ws://game-sev.azurewebsites.net/connect?id=$gameID'),
       );
       final GameResponse = await http
-        .get(Uri.parse('http://localhost:5083/Game/Get?id=$gameID'));
+        .get(Uri.parse('https://game-sev.azurewebsites.net/Game/Get?id=$gameID'));
       if(GameResponse.statusCode == 200){
         if(GameResponse.body != ""){
           Board bor = Board.fromJson(jsonDecode(GameResponse.body),gameID);
