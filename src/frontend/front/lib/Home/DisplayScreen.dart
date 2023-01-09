@@ -160,8 +160,9 @@ class _Display extends State<Display> {
             getGames(nums);
             filterBoards(filters[0],filters[1],filters[2]);
             updateDisplayBoards();
-        }
-    }} catch (Exception){
+          }
+      }
+    } catch (Exception){
       print(Exception);
     }
     

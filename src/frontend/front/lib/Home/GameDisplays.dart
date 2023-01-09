@@ -1,8 +1,11 @@
-// ignore_for_file: file_names, non_constant_identifier_names
+// ignore_for_file: file_names, non_constant_identifier_names, use_build_context_synchronously
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Shared/Data.dart';
+import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import '../TicTac/TicTacGui.dart';
 
@@ -99,18 +102,45 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
             ])
             ),
     ]),
-      onPressed: () => {loadGame(board.id, context,glob.auth)},
+      onPressed: () => {loadGame(board.id, context,glob.auth,glob.user)},
   ));
 }
 
-void loadGame(int gameID, BuildContext context, String auth){
-    final channel = WebSocketChannel.connect(
-      Uri.parse('ws://localhost:5083/connect?id=$gameID'),
-    );
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => TicToeGame(id:gameID, auth:auth,socket: channel,)),
-    );
+void loadGame(int gameID, BuildContext context, String auth, String name) async{
+    try{
+      final channel = WebSocketChannel.connect(
+        Uri.parse('ws://localhost:5083/connect?id=$gameID'),
+      );
+      final GameResponse = await http
+        .get(Uri.parse('http://localhost:5083/Game/Get?id=$gameID'));
+      if(GameResponse.statusCode == 200){
+        if(GameResponse.body != ""){
+          Board bor = Board.fromJson(jsonDecode(GameResponse.body),gameID);
+          int playerNum = getPlayer(bor,name);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => 
+              TicToeGame(id:gameID, auth:auth,socket: channel, 
+                board: bor.board, gameDone: bor.gameDone, playerNum: playerNum,
+                players: bor.players, turn: bor.turn == playerNum, winner: bor.winner
+              )),
+          );
+        }
+      }
+
+    } catch(_){
+
+    }
+
+}
+
+int getPlayer(Board bor, String name) {
+  for(int i =0; i< 2;i++){
+    if(bor.players[i] == name){
+      return i == 0 ? 1 : 2; 
+    }
+  }
+  return 0;
 }
 
 int getMoves(List<int> board) {

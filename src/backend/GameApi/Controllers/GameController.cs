@@ -167,7 +167,7 @@ public class GameController: ControllerBase{
     public async Task Conne(int id){
         Socket soc = new Socket("");
         _Sock.addSocket(id,soc);
-        Console.WriteLine("Connection - " + User);
+        Console.WriteLine($"Socket added to {id}");
         try{
             if (HttpContext.WebSockets.IsWebSocketRequest){
                 using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
@@ -176,8 +176,10 @@ public class GameController: ControllerBase{
             } else {
                 HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
-        } catch(Exception) {
-            Console.WriteLine("Closed Socket - " + User);
+        } catch(Exception e) {
+            Console.WriteLine(e);
+            Console.WriteLine($"Socket closed on {id}");
+            soc.Sock.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
         }
         Console.WriteLine(_Sock.getLookup().Count );
     }
@@ -187,7 +189,8 @@ public class GameController: ControllerBase{
         while (webSocket.State == WebSocketState.Open){
             var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
             if (result.MessageType == WebSocketMessageType.Close){
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                Console.WriteLine("Close Socket on Sever");
+                await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
             } else{
                 Console.WriteLine("Message Got");
                 String mes = Encoding.ASCII.GetString(buffer, 0, result.Count);
@@ -196,8 +199,15 @@ public class GameController: ControllerBase{
                 string s = makeMove(id, items[1], items[2]);
                 if(s == "Move Made"){
                     if(_gameService.getBoard(id) is Maybe<PlayableGame>.Some game){
-                        await _Sock.SendOut(id, game.Value);
+                        Console.WriteLine("Trying to send message");
+                        if(!await _Sock.SendOut(id, game.Value)){
+                            Console.WriteLine("Failed to send");
+                        }
+                    }else {
+                        Console.WriteLine("Fail2");
                     }
+                } else {
+                    Console.WriteLine("Fail1");
                 }
             }
         }

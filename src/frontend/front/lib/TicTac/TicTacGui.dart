@@ -1,31 +1,14 @@
 // ignore_for_file: file_names, unused_local_variable, non_constant_identifier_names
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Common.dart';
-import 'package:front/TicTac/TicBoard.dart';
-import 'package:http/http.dart' as http;
-
-Future<http.Response> fetchGame() async {
-  return await http.get(Uri.parse('http:localhost/Game/get'));
-}
 
 // ignore: must_be_immutable, prefer_typing_uninitialized_variables
 class TicToeGame extends StatefulWidget {
-  TicToeGame({super.key,required this.id,required this.auth, required this.socket});
-  int id;
-  String auth;
-  WebSocketChannel socket;
-
-  @override
-  // ignore: no_logic_in_create_state
-  State<TicToeGame> createState() => _TicToeGame(id, [],0,true,"1, 2", auth,0,false,socket);
-}
-class _TicToeGame extends State<TicToeGame> {
+  TicToeGame({super.key,required this.id,required this.auth, required this.socket,required this.players,required this.playerNum,required this.turn,required this.board,required this.winner,required this.gameDone});
   int id; 
-  String players;
+  List<String> players;
   String auth;
   int playerNum;
   bool turn;
@@ -33,30 +16,45 @@ class _TicToeGame extends State<TicToeGame> {
   int winner;
   bool gameDone;
   WebSocketChannel socket;
-  // ignore: type_init_formals
-  _TicToeGame(this.id, this.board,this.playerNum,this.turn,this.players,this.auth,this.winner,this.gameDone,this.socket){
-    board = [0,0,0,0,0,0,0,0,0,0,0];
-    winner = -1;
-    gameDone = false;
-    updateBB();
+
+ @override
+  void dispose() {
+    socket.sink.close();
   }
+  @override
+  // ignore: no_logic_in_create_state
+  State<TicToeGame> createState() => _TicToeGame(id, board,playerNum,turn,players,auth,winner,gameDone,socket);
+}
+class _TicToeGame extends State<TicToeGame> {
+  int id; 
+  List<String> players;
+  String auth;
+  int playerNum;
+  bool turn;
+  List<int> board;
+  int winner;
+  bool gameDone;
+  WebSocketChannel socket;
+
+  _TicToeGame(this.id, this.board,this.playerNum,this.turn,this.players,this.auth,this.winner,this.gameDone,this.socket){
+    AddListener();
+  }
+
   void update(int val){
       switch(board[val]){
-      case 0: 
-        board[val] = playerNum;
-        sendMove(val);
-        break;
-    }
-    setState(() {
-      board = board;
-    });
+        case 0: 
+          sendMove(val);
+          break;
+      }
   }
+
+ 
 
   Future<void> sendMove(int move) async {
     socket.sink.add(getMessage(move));
   }
 
-  void updateBB() async{
+  void AddListener() async{
     socket.stream.listen(
     (data) {
       print(data);
@@ -67,7 +65,6 @@ class _TicToeGame extends State<TicToeGame> {
         turn = playerNum == int.parse(msgs[1]);
         gameDone = msgs[2] == "true";
         winner = int.parse(msgs[3]);
-
       });
 
     },
@@ -99,7 +96,7 @@ class _TicToeGame extends State<TicToeGame> {
       backgroundColor: Colors.black45,
       body: Column(
           children: [
-            _buildPointsTable(players.split(", ")),
+            _buildPointsTable(players),
             grid(board,update,data)
           ]
           ),

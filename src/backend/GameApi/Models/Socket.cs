@@ -23,19 +23,6 @@ public class Socket {
         Sock = socket;
     }
 
-        private async Task Echo(WebSocket webSocket){
-        var buffer = new byte[1024 * 4];
-        while (webSocket.State == WebSocketState.Open){
-            var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
-            if (result.MessageType == WebSocketMessageType.Close){
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
-            } else{
-                String mes = Encoding.ASCII.GetString(buffer, 0, result.Count);
-                Console.WriteLine(mes);
-            }
-        }
-    }
-
     public async Task SendMessage(String message){
         if(Sock != null){
             if(Sock.State == WebSocketState.Open){
@@ -52,10 +39,17 @@ public class Socket {
                 String message = makeMessage(game);
                 if(message != ""){
                     byte[] data = Encoding.ASCII.GetBytes(message);
+                    Console.WriteLine("Sending message " + message);
                     await Sock.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
                     return true;
+                }  else {
+                    Console.WriteLine("No Message");
                 }
+            } else {
+                Console.WriteLine("Sock Closed");
             }
+        }  else {
+            Console.WriteLine("No Sock");
         }
         return false;
     }

@@ -17,12 +17,12 @@ public class Socker : ISock {
     }
 
     public async Task<bool> SendOut(int id, PlayableGame game){
+        bool ret = true;
         foreach(Socket sock in Lookup[id]){
             if(!await sock.SendBoard(game)){
-                return false;
             }
         }
-        return true;
+        return ret;
     }
 
     public Dictionary<int,List<Socket>> getLookup(){
