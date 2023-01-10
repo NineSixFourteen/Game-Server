@@ -1,5 +1,5 @@
 // ignore_for_file: non_constant_identifier_names, file_names
-
+import 'package:front/Shared/TextSelc.dart';
 import 'package:flutter/material.dart';
 
 Widget filter(MediaQueryData data, List<String> filters, Function change, List<String> playerNames) {
@@ -8,11 +8,11 @@ Widget filter(MediaQueryData data, List<String> filters, Function change, List<S
   double fontSize;
   if(data.size.width < data.size.height){
     width = 400;
-    height = 100;
+    height = 150;
     fontSize = 20;
   } else {
     width = 935;
-    height = 100;
+    height = 150;
     fontSize = 24;
   }
   return SizedBox(
@@ -22,62 +22,41 @@ Widget filter(MediaQueryData data, List<String> filters, Function change, List<S
       decoration: BoxDecoration(
         color: Colors.grey[300],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
         children: [
+          SizedBox(height: height/20,),
           SizedBox(
-            height: height,
-            width: width/3,
-            child: TextSec("Player",playerNames, data.size.width < data.size.height, fontSize, change, 0, filters),
+            width: width - 8,
+            height: height * 0.25,
+            child: Container(
+                decoration: BoxDecoration(color: Colors.black,boxShadow: [BoxShadow(
+                  color: Colors.grey[850]!,
+                  offset: const Offset(0,0),
+                  blurRadius: 1.0,
+                  spreadRadius: 1.0)]),
+                child: const Text("Filter", style: const TextStyle(fontSize: 25, color: Colors.greenAccent),textAlign: TextAlign.center)
+            ),
           ),
-          SizedBox(
-            height: height,
-            width: width/3,
-            child: TextSec("Result",["All","Win","Lose","Draw","Incomplete"], data.size.width < data.size.height, fontSize, change, 1, filters),
-          ),
-          SizedBox(
-            height: height,
-            width: width/3,
-            child: TextSec("Gamemode",['All', 'TicTacToe', 'Connect4', ], data.size.width < data.size.height, fontSize, change, 2, filters),
-          ),
-        ],
-      )
-    )
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: height * 0.7,
+                width: width/3,
+                child: TextSec("Player",playerNames, data.size.width < data.size.height, fontSize, change, 0, filters),
+              ),
+              SizedBox(
+                height: height * 0.7,
+                width: width/3,
+                child: TextSec("Result",["All","Win","Lose","Draw","Incomplete"], data.size.width < data.size.height, fontSize, change, 1, filters),
+              ),
+              SizedBox(
+                height: height * 0.7,
+                width: width/3,
+                child: TextSec("Gamemode",['All', 'TicTacToe', 'Connect4', ], data.size.width < data.size.height, fontSize, change, 2, filters),
+              ),
+            ],
+          )
+      ]))
   );
-}
-Widget TextSec(String title, List<String> options, bool mobile, double fontSize, Function change, int val, List<String> filters){
-  if(!mobile){
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: TextFieldHelper(title, options, fontSize, change, val, filters)
-  );
-  } else {
-    return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: TextFieldHelper(title, options, fontSize, change, val, filters)
-  );
-  }
-}
-
-List<Widget> TextFieldHelper(String title, List<String> options, double fontSize, Function change, int val, List<String> filters){
-  return [
-      Text("$title: ", style: TextStyle(fontSize: fontSize)),
-      Container(
-        decoration: BoxDecoration(color: Colors.grey[00]),
-        child: 
-      DropdownButton(
-        style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize, ),
-        alignment: Alignment.center,
-        value: filters[val],
-        items: options.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-            change(val, newValue!);
-        },
-      ))
-    ];
 }

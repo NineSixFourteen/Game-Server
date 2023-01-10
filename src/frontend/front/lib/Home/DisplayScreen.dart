@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
 import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
+import 'package:front/Shared/TextSelc.dart';
 import 'package:front/Home/Stats.dart';
 import 'package:front/Home/GameDisplays.dart';
 import 'package:front/Home/Filter.dart';
@@ -47,14 +48,24 @@ class _Display extends State<Display> {
   List<Board> boards = List.empty(growable: true);
   List<Board> filteredBoards = List.empty(growable: true);
   List<Board> displayBoards = List.empty(growable: true);
-  int start = 0;
-  int amount = 8;
   List<String> playerNames = List.empty(growable: true);
   var filters = [
     "All",
     "All",
     "All",
   ];
+
+  var navInfo = [
+    0,
+    5
+  ];
+
+  void changeNav(int val, String newVal){
+    setState(() {
+      navInfo[val] = int.parse(newVal);
+    });
+    updateDisplayBoards();
+  }
 
   void changeFilters(int val, String newVal){
     setState(() {
@@ -103,6 +114,7 @@ class _Display extends State<Display> {
                     data,backG(Colors.black)
                   ),
                   filter(data,filters,changeFilters,playerNames),
+                  ControllBoard(navInfo,data.size.width < data.size.height,changeNav),
                   NewGameScreen(data,playerNames,glob),
                   Column(
                     children: displayBoards.map(
@@ -316,7 +328,7 @@ class _Display extends State<Display> {
   
   void updateDisplayBoards() {
     displayBoards = List.empty(growable: true);
-    for(int i = start;i < start + amount;i++){
+    for(int i = navInfo[0] * navInfo[1];i < navInfo[0] * navInfo[1] + navInfo[1];i++){
       setState(() {
         if(filteredBoards.length > i){
           displayBoards.add(filteredBoards[i]);
@@ -325,8 +337,75 @@ class _Display extends State<Display> {
   }
 }
 
+Widget ControllBoard(List<int> navInfo, bool mobile, Function change){
+  double width = 935;
+  double height = 150;
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(0,4,0,0),
+    child: SizedBox(
+    width: width,
+    height: height,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.blueGrey[200],
+      ),
+      child: Column(
+        children: [
+          SizedBox(height: height/20,),
+          SizedBox(
+            width: width - 8,
+            height: height * 0.25,
+            child: Container(
+                decoration: BoxDecoration(color: Colors.black,boxShadow: [BoxShadow(
+                  color: Colors.grey[850]!,
+                  offset: const Offset(0,0),
+                  blurRadius: 1.0,
+                  spreadRadius: 1.0)]),
+                child: const Text("Navigation", style: const TextStyle(fontSize: 25, color: Colors.greenAccent),textAlign: TextAlign.center)
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: height *0.7,
+                width: width/3,
+                child: TextSec("Show    ",["1","2","3","4","5","10","20"], mobile, 25, change, 1, dumbFunc(navInfo)),
+              ),
+              SizedBox(
+                height: height*0.7,
+                width: width/3,
+                child: TextSec("Show    ",["1","2","3","4","5","10","20"], mobile, 25, change, 1, dumbFunc(navInfo)),
+              ),
+              SizedBox(
+                width: width/3,
+                height: height *0.7 / 1.5,
+                child: Padding(
+                  padding: EdgeInsets.all(2),
+                  child: ElevatedButton(
+                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blueGrey[500]),),
+                    onPressed: () {  },
+                    child: 
+                      // ignore: prefer_const_literals_to_create_immutables
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                      // ignore: prefer_const_constructors
+                      Icon(
+                        Icons.refresh_sharp,
+                        color: Colors.white,
+                        size: 45.0,
+                        ),
+                        Text("Refresh", style: TextStyle(color: Colors.white, fontSize: 30),)
+                      ],
+                    ),
+                  ),
+          ))],
+          )
+      ]))
+  ));
+}
 
-
-
-
-
+List<String> dumbFunc(List<int> nums){
+  return nums.map((e) => "$e").toList();
+}
