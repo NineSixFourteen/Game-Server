@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks
+// ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks, avoid_function_literals_in_foreach_calls
 
 import 'dart:convert';
 
@@ -38,6 +38,7 @@ class _Display extends State<Display> {
   _Display(this.data, this.glob,this.name,this.auth){
     name = glob.user;
     auth = glob.auth;
+    KK();
   }
 
   String name;
@@ -114,14 +115,13 @@ class _Display extends State<Display> {
                     data,backG(Colors.black)
                   ),
                   filter(data,filters,changeFilters,playerNames),
-                  ControllBoard(navInfo,data.size.width < data.size.height,changeNav),
+                  ControllBoard(navInfo,data.size.width < data.size.height,changeNav, (boards.length/navInfo[1]).ceil(),KK ),
                   NewGameScreen(data,playerNames,glob),
                   Column(
                     children: displayBoards.map(
                       (board) => DisplayGame(board, glob,data,context)
                       ).toList(),
-                  ),
-                  ElevatedButton(onPressed: ()=> KK(), child: const Text("Press ME"))])]
+                  )])]
     ))]));
   }
 
@@ -158,6 +158,8 @@ class _Display extends State<Display> {
   void KK() async {
     //Fake Data for testing 
     //fakeGames();
+    print(100);
+    await Future.delayed(Duration(seconds: 1));
     setState(() {
       displayBoards = List.empty(growable: true);
       boards = List.empty(growable: true);
@@ -167,9 +169,8 @@ class _Display extends State<Display> {
         .get(Uri.parse('https://game-sev.azurewebsites.net/Games?name=$name&auth=$auth'));
         if(response.statusCode == 200){
           if(response.body != "Error: User not found") {
-            List<String> l = response.body.substring(1, response.body.length - 1).split(",");
-            List<int> nums = l.map((e) => int.parse(e)).toList();
-            getGames(nums);
+            String l = response.body.substring(1, response.body.length - 1);
+            getGames(l);
             filterBoards(filters[0],filters[1],filters[2]);
             updateDisplayBoards();
           }
@@ -224,28 +225,25 @@ class _Display extends State<Display> {
       }
     }
   }
-  void getGames(List<int> games) async {
-    for(int n in games){
+  void getGames(String games) async {
       try{
+        List<int> nums = games.split(",").map((e) => int.parse(e)).toList();
+        int n = 0;
         final response = await http
-          .get(Uri.parse('https://game-sev.azurewebsites.net/Game/Get?id=$n'));
+          .get(Uri.parse('https://game-sev.azurewebsites.net/Game/Gets/$games'));
           if(response.statusCode == 200){
-            if(response.body != "Error: User not found" && !added.contains(n)) {
-              added.add(n);
-              Board bor = Board.fromJson(jsonDecode(response.body),n);
-              for(String name in bor.players){
-                if(!playerNames.contains(name)){
-                  playerNames.add(name);
-                }
-              }
-              setState(()  {
-                boards.add(bor);
-              });
+            if(response.body != "Error: User not found") {
+              (json.decode(response.body) as List)
+                .forEach(
+                  (i) => {
+                    boards.add(Board.fromJson(i,nums[n++])),
+
+                  });
             }
           } 
       } on Exception{
       }
-    }
+    
   }
   
   @override
@@ -337,7 +335,7 @@ class _Display extends State<Display> {
   }
 }
 
-Widget ControllBoard(List<int> navInfo, bool mobile, Function change){
+Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK){
   double width = 935;
   double height = 150;
   return Padding(
@@ -361,7 +359,7 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change){
                   offset: const Offset(0,0),
                   blurRadius: 1.0,
                   spreadRadius: 1.0)]),
-                child: const Text("Navigation", style: const TextStyle(fontSize: 25, color: Colors.greenAccent),textAlign: TextAlign.center)
+                child: const Text("Navigation", style: TextStyle(fontSize: 25, color: Colors.greenAccent),textAlign: TextAlign.center)
             ),
           ),
           Row(
@@ -375,16 +373,16 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change){
               SizedBox(
                 height: height*0.7,
                 width: width/3,
-                child: TextSec("Show    ",["1","2","3","4","5","10","20"], mobile, 25, change, 1, dumbFunc(navInfo)),
+                child: TextSec("Page    ",makeList(pages), mobile, 25, change, 0, dumbFunc(navInfo)),
               ),
               SizedBox(
                 width: width/3,
                 height: height *0.7 / 1.5,
                 child: Padding(
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   child: ElevatedButton(
                     style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blueGrey[500]),),
-                    onPressed: () {  },
+                    onPressed: () { KK();},
                     child: 
                       // ignore: prefer_const_literals_to_create_immutables
                       Row(
@@ -404,6 +402,18 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change){
           )
       ]))
   ));
+}
+
+List<String> makeList(int pages) {
+  List<String> ret = List.empty(growable: true);
+  if(pages ==0){
+    ret.add("0");
+    return ret;
+  }
+  for(int i = 0; i < pages;i++){
+    ret.add("$i");
+  }
+  return ret;
 }
 
 List<String> dumbFunc(List<int> nums){

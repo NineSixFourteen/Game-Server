@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 using System.Net.WebSockets;
 using System;
 using System.Text;
@@ -7,6 +8,7 @@ using GamePlayer.MyError;
 using GamePlayer.PlayableGame;
 using Helpers.Maybe;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace GameApi.Controllers;
 
@@ -27,7 +29,6 @@ public class GameController: ControllerBase{
     public ActionResult<string> load(int id){
         if(!Tracker.getList().Contains(id)){
             Tracker.addID(id);
-            Console.WriteLine(id);
             var x = loadGame(id);
             if(x is Maybe<MyError>.Some error){
                 return new ActionResult<string>(error.Value.getError());
@@ -35,6 +36,7 @@ public class GameController: ControllerBase{
         } else return "Game already loaded";
 
     }
+    
     [HttpGet("Drop")]
     public ActionResult<string> dropGame(int id){
         if(Tracker.getList().Contains(id)){
@@ -66,6 +68,7 @@ public class GameController: ControllerBase{
             DBContext.Games.Update(game); 
             var result = _gameService.AddGame(game);
             if(result is Maybe<MyError>.Some  error){
+                Console.WriteLine(error.Value.getError());
                 return error;
             } else return new Maybe<MyError>.None();
         } else return new Maybe<MyError>.Some(new ServiceError(2,"Game not found"));
@@ -120,12 +123,8 @@ public class GameController: ControllerBase{
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
     }
 
-   [HttpGet("Get")]
-    public ActionResult<GameStatus> Get(int id){
-        if(_gameService == null){
-            return NotFound();
-        }
-        Console.WriteLine(id);
+
+    private GameStatus? getGame(int id){
         var x = _gameService.getBoard(id);
         if(x is Maybe<PlayableGame>.Some game){
             if(game.Value.toGame() is Maybe<Game>.Some gam){
@@ -134,12 +133,37 @@ public class GameController: ControllerBase{
                     ga.State, ga.turn,
                     game.Value.getWinner(), game.Value.isGameComplete(), 
                     ga.players.Split(", ").ToArray(),new int[]{2,3});
-            }    
+            }  else {
+                return null;
+            }
         } else {
-            load(id);
-            return Get(id);
+            if(loadGame(id) is Maybe<MyError>.Some){
+                return null;
+            }
+            return getGame(id);
         }
-        return NotFound();
+    }
+
+    [HttpGet("Gets/{Ids}")]
+    public ActionResult<List<GameStatus>> GetGames(String ids){
+        String[] nums = ids.Split(",");
+        List<GameStatus> ret = new List<GameStatus>();
+        Console.WriteLine(ids);
+        foreach(String id in nums){
+            ret.Add(getGame(Int32.Parse(id)));
+        }
+         return ret;
+    }
+   [HttpGet("Get")]
+    public ActionResult<GameStatus> Get(int id){
+        if(_gameService == null){
+            return NotFound();
+        }
+        var x = getGame(id);
+        if(x == null){
+            return NotFound();
+        }
+        return x;
     }
 
     private string makeMove(int id, string move, string auth){
@@ -172,14 +196,18 @@ public class GameController: ControllerBase{
             if (HttpContext.WebSockets.IsWebSocketRequest){
                 using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                 soc.AddSocket(webSocket);
-                await Listen(soc.Sock);
+                if(soc.Sock != null){
+                    await Listen(soc.Sock);
+                }
             } else {
                 HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
         } catch(Exception e) {
             Console.WriteLine(e);
             Console.WriteLine($"Socket closed on {id}");
-            soc.Sock.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            if(soc.Sock != null){
+                await soc.Sock.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            }
         }
         Console.WriteLine(_Sock.getLookup().Count );
     }
