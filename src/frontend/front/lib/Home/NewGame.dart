@@ -72,15 +72,16 @@ class newMenu extends StatefulWidget {
   List<String> playerNames;
   double fontSize;
   @override
-  _newMenu createState() => _newMenu(data,fontSize,glob);
+  _newMenu createState() => _newMenu(data,fontSize,glob, playerNames);
 }
 
 class _newMenu extends State<newMenu> {
-  _newMenu( this.data,this.fontSize, this.glob);
+  _newMenu( this.data,this.fontSize, this.glob, this.playerNames);
   MediaQueryData data;
   double fontSize;
   Data glob;
-  List<String> Fields = ["player1","Player1","TicTacToe",""];
+  List<String> playerNames;
+  List<String> Fields = ["New","Player1","TicTacToe",""];
   @override
   Widget build(BuildContext context) {
     void change(int val, String newVal){
@@ -92,24 +93,24 @@ class _newMenu extends State<newMenu> {
       height: 200,
       child: Container(
         decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
-        child : CreateGameMenu(data.size.width < data.size.height, fontSize,Fields,change,context,glob.user))
+        child : CreateGameMenu(data.size.width < data.size.height, fontSize,Fields,change,context,glob.user,playerNames))
       );
   }
 }
 
-Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Function func, BuildContext context, String user){
+Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Function func, BuildContext context, String user, List<String> playerNames){
   if(mobile){
     return Column( 
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: newGameSel(fields,fontSize,true,func),
+            children: newGameSel(fields,fontSize,true,func,playerNames),
         ),
         createButton(fontSize,280,40,context,fields, user)
     ]);
   } else{
-    List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func),growable: true);
+    List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func,playerNames),growable: true);
     widgets.add(createButton(fontSize - 5,300,100,context,fields, user));
     return Row( 
       mainAxisAlignment: MainAxisAlignment.center,
@@ -164,16 +165,16 @@ void GameCreation(BuildContext context,bool suc) {
   }
 }
 
-List<Widget> newGameSel(List<String> fields, double fontSize,bool mobile, Function func){
+List<Widget> newGameSel(List<String> fields, double fontSize,bool mobile, Function func, List<String> playerNames){
   if(mobile){
     return  [
-        makePlayerSelect("Player    ", fields, ["player1","New"], fontSize,mobile,0,func),
+        makePlayerSelect("Player    ", fields, playerNames, fontSize,mobile,0,func),
         makeSelect("Player Number     ", fields, ["Player1", "Player2"], fontSize,mobile,1,func),
         makeSelect("Gamemode    ", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func)
       ];
 } else{
     return  [
-      makePlayerSelect("Player ", fields, ["player1", "New" ], fontSize,mobile,0,func),
+      makePlayerSelect("Player ", fields, playerNames, fontSize,mobile,0,func),
       Padding(padding: const EdgeInsets.all(40),child: makeSelect("Player Number", fields, ["Player1", "Player2"], fontSize,mobile,1,func)),
       Padding(padding: const EdgeInsets.all(30),child: makeSelect("Gamemode", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func))
     ];
@@ -222,6 +223,7 @@ Widget makeSelect(String title, List<String> fields, List<String> options, doubl
 
 Widget makeSelectHelper(List<String> fields, List<String> options, double font, int val, Function func ){
   String init = fields[val];
+  print(options);
   return DropdownButton(
     dropdownColor: const Color.fromARGB(255, 50, 179, 146),
     style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
@@ -244,7 +246,13 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
   String init = fields[val];
   String player = "";
   TextEditingController mycontroller = TextEditingController();
+  List<String> playerNames = options.map((e) => e).toList();
+  playerNames.remove("All");
+  if(!playerNames.contains("New")){
+    playerNames.add("New");
+  }
   if(fields[0] == "New"){
+    print(playerNames);
     print("Hell");
   }
   Widget wid = DropdownButton(
@@ -252,7 +260,7 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
       style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
       alignment: Alignment.center,
       value: init,
-      items: options.map((String value) {
+      items: playerNames.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),

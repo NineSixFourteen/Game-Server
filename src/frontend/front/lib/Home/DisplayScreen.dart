@@ -49,7 +49,9 @@ class _Display extends State<Display> {
   List<Board> boards = List.empty(growable: true);
   List<Board> filteredBoards = List.empty(growable: true);
   List<Board> displayBoards = List.empty(growable: true);
+
   List<String> playerNames = List.empty(growable: true);
+
   var filters = [
     "All",
     "All",
@@ -104,7 +106,8 @@ class _Display extends State<Display> {
                 fit: BoxFit.fill
                 ))
           ),
-          SingleChildScrollView(child: Row(
+          SingleChildScrollView(
+            child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
@@ -229,6 +232,7 @@ class _Display extends State<Display> {
       try{
         List<int> nums = games.split(",").map((e) => int.parse(e)).toList();
         int n = 0;
+        Board b;
         final response = await http
           .get(Uri.parse('https://game-sev.azurewebsites.net/Game/Gets/$games'));
           if(response.statusCode == 200){
@@ -236,9 +240,15 @@ class _Display extends State<Display> {
               (json.decode(response.body) as List)
                 .forEach(
                   (i) => {
-                    boards.add(Board.fromJson(i,nums[n++])),
-
+                    b = Board.fromJson(i,nums[n++]),
+                    for(String name in b.players){
+                      if(!playerNames.contains(name)){
+                        playerNames.add(name)
+                      }
+                    },
+                    boards.add(b),
                   });
+              setState(() {});
             }
           } 
       } on Exception{
@@ -331,8 +341,12 @@ class _Display extends State<Display> {
         if(filteredBoards.length > i){
           displayBoards.add(filteredBoards[i]);
         }
-      });}
+      });}setState(() {
+        
+      });
+      
   }
+  
 }
 
 Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK){
