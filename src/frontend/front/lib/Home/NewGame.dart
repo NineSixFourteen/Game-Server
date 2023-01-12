@@ -123,7 +123,6 @@ Widget createButton(double fontSize, double width, double height, BuildContext c
   return InkWell(
     onTap: () {
       createNewGame(fields,user,context);
-
     },
     // ignore: prefer_const_constructors
     child: Container(

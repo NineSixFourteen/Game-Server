@@ -1,9 +1,12 @@
 // ignore_for_file: file_names, non_constant_identifier_names, empty_catches
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
 import 'package:front/Home/DisplayScreen.dart';
 import 'package:http/http.dart' as http;
+
+import 'NewAccount.dart';
 
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
@@ -49,7 +52,6 @@ class _Login extends State<Login> {
 
   void SignIn(String name, String Password) async{
     try{
-      // ignore: unused_local_variable
       final response = await http
         .get(Uri.parse('https://game-sev.azurewebsites.net/Login?name=$name&pass=$Password'));
         if(response.statusCode == 200){
@@ -135,6 +137,20 @@ class _Login extends State<Login> {
                 ),
             ),
           ),
+          Center(
+            child: RichText(
+              text: TextSpan(
+                text: 'Create new Account',
+                style: const TextStyle(color: Colors.yellow , fontSize: 18),
+                recognizer: TapGestureRecognizer()..onTap = () {
+                    showModalBottomSheet(
+                      context: context, 
+                      builder: (_) => newAccount(data,10,glob)
+                    );
+                },
+              )
+          ),
+          )
         ])
       ]),
     );

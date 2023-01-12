@@ -91,7 +91,6 @@ public class GameController: ControllerBase{
                 if(result is Maybe<MyError>.Some  error){
                     return new ActionResult<string>(error.Value.getError());
                 }
-
             } else{
                 return new ActionResult<string>("Error cant find new game");
             }
