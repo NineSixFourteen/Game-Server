@@ -313,7 +313,6 @@ void createNewGameHelper(String Opponent, String user,int pos, int type, BuildCo
   } else {
     URL += "$Opponent, $user"; 
   }
-
   try{
       final response = await http
     .get(Uri.parse(URL));

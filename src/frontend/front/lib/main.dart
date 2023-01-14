@@ -3,6 +3,8 @@ import 'package:front/Home/Home.dart';
 
 import 'package:flutter/material.dart';
 
+import 'Connect4/Connect4Gui.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-      '/': (context) => HomePage(data: data),
+      '/': (context) => Connect4(),
       },
       
     );

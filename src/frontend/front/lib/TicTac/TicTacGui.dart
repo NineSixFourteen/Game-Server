@@ -37,7 +37,6 @@ class _TicToeGame extends State<TicToeGame> {
   WebSocketChannel socket;
 
   _TicToeGame(this.id, this.board,this.playerNum,this.turn,this.players,this.auth,this.winner,this.gameDone,this.socket){
-    print(id);
     AddListener();
   }
 
