@@ -2,6 +2,7 @@ using GamePlayer.PlayableGame;
 using GamePlayer.Game;
 using GamePlayer.MyError;
 using Helpers.Maybe;
+
 public interface IGameService {
 
     Maybe<MyError> AddGame(Game game);
@@ -18,6 +19,7 @@ public class GameServer : IGameService {
         games = new List<PlayableGame>();
     }
     public Maybe<MyError> AddGame(Game game){
+        Console.WriteLine(game.GameType);
         switch(game.GameType){
             case 1:
                 var gm = new TicTacToe();
@@ -28,6 +30,16 @@ public class GameServer : IGameService {
                     games.Add(gm);
                     return new Maybe<MyError>.None();
                 }
+            case 2: 
+                var gms = new FourInARow();
+                var xs = gms.fromGame(game);
+                if(xs is Maybe<MyError>.Some errs){
+                    return errs;
+                } else {
+                    games.Add(gms);
+                    return new Maybe<MyError>.None();
+                }
+                break;
             default:
                 return new Maybe<MyError>.Some(new ServiceError(1,"Game Type Unknown"));
         }

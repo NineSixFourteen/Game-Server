@@ -19,14 +19,6 @@ class Board {
     required this.photos
   });
 
-  List<int> getBoard(String state){
-    List<int> board = state.codeUnits;
-    for(int i = 0; i < board.length;i++){
-      board[i] = board[i] - 48;
-    }
-    return board;
-  }
-
   factory Board.fromJson(Map<String, dynamic> json,int id) {
     List<int> board = List.from(json['state'].codeUnits);
     for(int i = 0; i < board.length;i++){

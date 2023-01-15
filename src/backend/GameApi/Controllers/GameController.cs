@@ -78,12 +78,13 @@ public class GameController: ControllerBase{
         if(_gameService == null){
             return NotFound();
         }
-        if(type ==1){
+        if(type == 2|| type == 1){
             String playerAuths = getPlayerAuths(players);
             if(playerAuths == ""){
                 return "Error not players";
             }
-            DBContext.Games.Add(new Game(0,1,"000000000",players,playerAuths,0));
+            Game ga = new Game(0,type,"",players,playerAuths,0);
+            DBContext.Games.Add(ga);
             DBContext.SaveChanges();
             var game = DBContext.Games.OrderByDescending(p => p.Id).FirstOrDefault();  
             if(game != null){
@@ -150,7 +151,7 @@ public class GameController: ControllerBase{
         Console.WriteLine(ids);
         foreach(String id in nums){
             ret.Add(getGame(Int32.Parse(id)));
-        }
+        }   
          return ret;
     }
    [HttpGet("Get")]
@@ -219,8 +220,9 @@ public class GameController: ControllerBase{
                 Console.WriteLine("Close Socket on Sever");
                 await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
             } else{
-                Console.WriteLine("Message Got");
+                
                 String mes = Encoding.ASCII.GetString(buffer, 0, result.Count);
+                Console.WriteLine("Message Got - " + mes );
                 String[] items = mes.Split(",");
                 int id = Int32.Parse(items[0]);
                 string s = makeMove(id, items[1], items[2]);
@@ -234,7 +236,7 @@ public class GameController: ControllerBase{
                         Console.WriteLine("Fail2");
                     }
                 } else {
-                    Console.WriteLine("Fail1");
+                    Console.WriteLine("Fail - " + s);
                 }
             }
         }
