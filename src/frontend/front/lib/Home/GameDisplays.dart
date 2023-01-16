@@ -3,6 +3,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:front/Connect4/Board4.dart';
+import 'package:front/Connect4/Connect4Gui.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Shared/Data.dart';
 import 'package:http/http.dart' as http;
@@ -109,14 +111,16 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
 void loadGame(int gameID, BuildContext context, String auth, String name) async{
     try{
       final channel = WebSocketChannel.connect(
-        Uri.parse('ws://game-sev.azurewebsites.net/connect?id=$gameID'),
+        Uri.parse('ws://localhost:5083/connect?id=$gameID'),
       );
       final GameResponse = await http
-        .get(Uri.parse('https://game-sev.azurewebsites.net/Game/Get?id=$gameID'));
+        .get(Uri.parse('http://localhost:5083/Game/Get?id=$gameID'));
       if(GameResponse.statusCode == 200){
         if(GameResponse.body != ""){
+          var x = jsonDecode(GameResponse.body);
+          if(x['type'] == 1){
           Board bor = Board.fromJson(jsonDecode(GameResponse.body),gameID);
-          int playerNum = getPlayer(bor,name);
+          int playerNum = getPlayer(bor.players,name);
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => 
@@ -125,18 +129,27 @@ void loadGame(int gameID, BuildContext context, String auth, String name) async{
                 players: bor.players, turn: bor.turn == playerNum, winner: bor.winner
               )),
           );
-        }
+        } else if(x['type'] == 2){
+          Board4 bor = Board4.fromJson(jsonDecode(GameResponse.body),gameID);
+          int playerNum = getPlayer(bor.players,name);
+          print("FAISL");
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => 
+              Connect4(bor, auth, playerNum, channel)),);
+        }else {
+          print(x);
+        }} 
       }
-
-    } catch(_){
-
+    } catch(Exception){
+      print("FAISL");
     }
 
 }
 
-int getPlayer(Board bor, String name) {
+int getPlayer(List<String> players, String name) {
   for(int i =0; i< 2;i++){
-    if(bor.players[i] == name){
+    if(players[i] == name){
       return i == 0 ? 1 : 2; 
     }
   }

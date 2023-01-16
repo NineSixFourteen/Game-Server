@@ -67,8 +67,12 @@ public class GameController: ControllerBase{
         if(game != null){
             DBContext.Games.Update(game); 
             var result = _gameService.AddGame(game);
+            Console.WriteLine("RR" + game.GameType);
+            Console.WriteLine("LL" + game.State);
             if(result is Maybe<MyError>.Some  error){
+                Console.WriteLine("22" + game.State);
                 Console.WriteLine(error.Value.getError());
+                Console.WriteLine("22" + game.State);
                 return error;
             } else return new Maybe<MyError>.None();
         } else return new Maybe<MyError>.Some(new ServiceError(2,"Game not found"));
@@ -130,6 +134,7 @@ public class GameController: ControllerBase{
             if(game.Value.toGame() is Maybe<Game>.Some gam){
                 var ga = gam.Value;
                 return new GameStatus(
+                    ga.GameType,
                     ga.State, ga.turn,
                     game.Value.getWinner(), game.Value.isGameComplete(), 
                     ga.players.Split(", ").ToArray(),new int[]{2,3});
@@ -150,6 +155,8 @@ public class GameController: ControllerBase{
         List<GameStatus> ret = new List<GameStatus>();
         Console.WriteLine(ids);
         foreach(String id in nums){
+            GameStatus g = getGame(Int32.Parse(id));
+            Console.WriteLine(g.state);
             ret.Add(getGame(Int32.Parse(id)));
         }   
          return ret;

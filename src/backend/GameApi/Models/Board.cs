@@ -1,5 +1,6 @@
 public class GameStatus {
-    public GameStatus(string st, int tu, int win, bool gamdo, string[] plrs,int[] photos){
+    public GameStatus(int type, string st, int tu, int win, bool gamdo, string[] plrs,int[] photos){
+        this.type = type;
         state = st;
         turn = tu;
         winner = win;
@@ -7,6 +8,7 @@ public class GameStatus {
         players = plrs;
         this.photos = photos;
     }
+    public int type {get;set;}
     public string state {get;set;}
     public int turn {get;set;}
     public int winner {get;set;}

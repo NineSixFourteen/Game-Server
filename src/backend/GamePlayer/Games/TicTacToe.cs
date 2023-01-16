@@ -3,6 +3,7 @@ using GamePlayer.PlayableGame;
 using GamePlayer.MyError;
 using Helpers.Result;
 using Helpers.Maybe;
+
 public class TicTacToe : PlayableGame{
     public TicTacToe(){}
     public int[] board {get;set;} = new int[0];
@@ -14,13 +15,15 @@ public class TicTacToe : PlayableGame{
     private bool valid = false;
     private bool gameComplete = false;
     private Result<int[],MyError> getBoard(string state){
-        if(state.Length != 9)
+        if(state.Length != 9){
             return new Result<int[],MyError>.Error(new ParseError(4,"Expected a size of 9"));
+        }
         int[] board = new int[9];
         int i = 0;
         foreach(char ch in state.ToList()){
-            if(ch > 50 || ch < 48) 
+            if(ch > 50 || ch < 48) {
                 return new Result<int[],MyError>.Error(new ParseError(1,"Expected a max value of 2"));
+            }
             board[i++] = ch - 48;
         }
         return new Result<int[], MyError>.Ok(board);

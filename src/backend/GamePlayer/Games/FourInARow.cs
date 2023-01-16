@@ -175,6 +175,6 @@ public class FourInARow : PlayableGame{
             return new Maybe<Game>.None();
         }
         return new Maybe<Game>.Some(
-            new Game(id,0,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
+            new Game(id,2,getState(),String.Join(",",players), String.Join(", ",playersAuths),playerTurn ? 0 : 1));
     }
 }

@@ -19,7 +19,6 @@ public class GameServer : IGameService {
         games = new List<PlayableGame>();
     }
     public Maybe<MyError> AddGame(Game game){
-        Console.WriteLine(game.GameType);
         switch(game.GameType){
             case 1:
                 var gm = new TicTacToe();
