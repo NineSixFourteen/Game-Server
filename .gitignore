@@ -13,6 +13,7 @@ src/backend/TestGames/obj/
 src/backend/Helpers/bin/
 src/backend/Helpers/obj/
 src/backend/Helpers/Info.cs
+src/backend/GameApi/api
 
 src/frontend/front/dart_tool
 src/frontend/front/.idea
@@ -29,4 +30,6 @@ src/frontend/front/.metadata
 src/frontend/front/analysis_options.yaml
 src/frontend/front/pubspec.lock
 src/frontend/front/README.md
+
+
 

@@ -51,10 +51,12 @@ class _Login extends State<Login> {
   }
 
   void SignIn(String name, String Password) async{
+    print("$name");
     try{
       final response = await http
-        .get(Uri.parse('https://game-sev.azurewebsites.net/Login?name=$name&pass=$Password'));
+        .get(Uri.parse('http://139.162.210.205/GameSev/Login?name=$name&pass=$Password'));
         if(response.statusCode == 200){
+          print(response.body);
           if(response.body != "Error: User not found") {
             glob.auth = response.body;
             glob.user = name;

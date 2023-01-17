@@ -169,7 +169,7 @@ class _Display extends State<Display> {
     });
     try{
       final response = await http
-        .get(Uri.parse('https://game-sev.azurewebsites.net/Games?name=$name&auth=$auth'));
+        .get(Uri.parse('http://139.162.210.205/GameSev/Games?name=$name&auth=$auth'));
         if(response.statusCode == 200){
           if(response.body != "Error: User not found") {
             String l = response.body.substring(1, response.body.length - 1);
@@ -234,7 +234,7 @@ class _Display extends State<Display> {
         int n = 0;
         Board b;
         final response = await http
-          .get(Uri.parse('http://localhost:5083/Game/Gets/$games'));
+          .get(Uri.parse('http://139.162.210.205/GameSev/Game/Gets/$games'));
           if(response.statusCode == 200){
             if(response.body != "Error: User not found") {
               (json.decode(response.body) as List)

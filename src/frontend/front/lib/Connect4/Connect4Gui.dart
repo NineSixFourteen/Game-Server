@@ -26,11 +26,7 @@ class Connect4 extends StatefulWidget {
 
   @override
   State<Connect4> createState() {
-    if(board.id == 0){
-      return _Connect4(0,["Fake1","Fake2"], "SxPxTtZQ",2, true, fakeBoard, false, -1,socket);
-    } else {
       return _Connect4(board.id, board.players, auth, 1, board.turn == playerNum, board.board, board.gameDone, board.winner,socket);
-    }
   }
 }
 
@@ -127,7 +123,7 @@ class _Connect4 extends State<Connect4> {
   getBoard(int i) async { 
     try{
       final GameResponse = await http
-        .get(Uri.parse('http://localhost:5083/Game/Get?id=41'));
+        .get(Uri.parse('http://139.162.210.205/GameSev/Game/Get?id=41'));
       if(GameResponse.statusCode == 200){
         if(GameResponse.body != ""){
           Board4 bor = Board4.fromJson(jsonDecode(GameResponse.body),41);

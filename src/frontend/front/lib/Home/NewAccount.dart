@@ -97,11 +97,13 @@ Widget createAccountButton(TextEditingController name, TextEditingController pas
 }
 
 void createAccound(String name, String password, BuildContext context) async {
-  String url = "https://game-sev.azurewebsites.net/Create?name=$name&password=$password";
+  String url = "http://139.162.210.205/GameSev/Create?name=$name&password=$password";
   try{
+      print("sds");
       final response = await http
     .get(Uri.parse(url));
       if(response.statusCode == 200){
+        print(response.body);
         if(response.body == "User Created"){
           print("User Created");
           AccountCreation(context, true);

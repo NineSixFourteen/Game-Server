@@ -307,7 +307,7 @@ void createNewGame(List<String> data, String user, BuildContext context){
 }
 
 void createNewGameHelper(String Opponent, String user,int pos, int type, BuildContext context) async{
-  var URL = "http://localhost:5083/Game/Create?type=$type&players=";
+  var URL = "http://139.162.210.205/GameSev/Game/Create?type=$type&players=";
   if(pos == 1){
     URL += "$user, $Opponent"; 
   } else {
