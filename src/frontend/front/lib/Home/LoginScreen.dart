@@ -10,48 +10,45 @@ import 'NewAccount.dart';
 
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
-  LoginScreen(this.data, {super.key});
+  LoginScreen(this.data, this.isMobile, {super.key});
   Data data;
+  bool isMobile;
   Data getData(){
     return data;
   }
-
   @override
   Widget build(BuildContext context) {
-    // ignore: prefer_const_constructors
-    MediaQueryData queryData = MediaQuery.of(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Login(data: queryData,glob: getData()),
+      home: Login(isMobile: isMobile,glob: getData()),
     );
   }
 }
 
 // ignore: must_be_immutable
 class Login extends StatefulWidget {
-  Login({super.key, required this.data,required this.glob});
-  MediaQueryData data;
+  Login({super.key, required this.isMobile,required this.glob});
+  bool isMobile;
   Data glob;
   @override
   // ignore: no_logic_in_create_state
-  State<StatefulWidget> createState() => _Login(data,glob);
+  State<StatefulWidget> createState() => _Login(isMobile,glob);
 }
 
 class _Login extends State<Login> {
-  _Login(this.data, this.glob);
-  MediaQueryData data;
+  _Login(this.isMobile, this.glob);
+  bool isMobile;
   Data glob;
 
   void move(){
     glob.user = "Test1";
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DisplayScreen(glob)),
+      MaterialPageRoute(builder: (context) => DisplayScreen(glob,isMobile)),
     );
   }
 
   void SignIn(String name, String Password) async{
-    print("$name");
     try{
       final response = await http
         .get(Uri.parse('http://139.162.210.205/GameSev/Login?name=$name&pass=$Password'));
@@ -64,7 +61,7 @@ class _Login extends State<Login> {
             // ignore: use_build_context_synchronously
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => DisplayScreen(glob)),
+              MaterialPageRoute(builder: (context) => DisplayScreen(glob,isMobile)),
             );
           }
         } 
@@ -85,10 +82,10 @@ class _Login extends State<Login> {
   @override
   Widget build(BuildContext context) {
     double textBoxWidth = 0;
-    if(data.size.width < data.size.height){
-      textBoxWidth = data.size.width/1.2;
+    if(isMobile){
+      textBoxWidth = 300;
     } else {
-      textBoxWidth = data.size.width/2.4;
+      textBoxWidth = 600;
     }
     return Scaffold(
       appBar: AppBar(
@@ -103,23 +100,23 @@ class _Login extends State<Login> {
           Column(
             children: [
           Padding(
-            padding: EdgeInsets.only(top:data.size.height/200),
+            padding: const EdgeInsets.only(top:5),
             child: SizedBox(
               width: textBoxWidth,
-              height: data.size.height/4,
+              height: 100,
               child: Image.asset('assets/images/Logo.png'),
             )
           ),
           Padding(
-            padding: EdgeInsets.only(top: data.size.height/100, bottom:data.size.height/100 , left: 2,right: 2),
+            padding: const EdgeInsets.only(top: 10, bottom:10 , left: 2,right: 2),
             child: field("Username",false,textBoxWidth,field1)
           ),
           Padding(
-            padding: EdgeInsets.only(top:data.size.height/100, bottom: data.size.height/50, left: 1,right: 1),
+            padding: const EdgeInsets.only(top:10, bottom: 20, left: 1,right: 1),
             child: field("Password",true,textBoxWidth,field2)
           ),
           Container(
-            height: data.size.height/18,
+            height: 40,
             width: textBoxWidth,
             decoration: BoxDecoration(
               color: Colors.blue, borderRadius: 
@@ -147,7 +144,7 @@ class _Login extends State<Login> {
                 recognizer: TapGestureRecognizer()..onTap = () {
                     showModalBottomSheet(
                       context: context, 
-                      builder: (_) => newAccount(data,10,glob)
+                      builder: (_) => newAccount(isMobile,10,glob)
                     );
                 },
               )

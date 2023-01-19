@@ -6,7 +6,7 @@ import 'package:front/Shared/Common.dart';
 
 // ignore: must_be_immutable, prefer_typing_uninitialized_variables
 class TicToeGame extends StatefulWidget {
-  TicToeGame({super.key,required this.id,required this.auth, required this.socket,required this.players,required this.playerNum,required this.turn,required this.board,required this.winner,required this.gameDone});
+  TicToeGame({super.key,required this.id,required this.auth, required this.socket,required this.players,required this.playerNum,required this.turn,required this.board,required this.winner,required this.gameDone, required this.isMobile});
   int id; 
   List<String> players;
   String auth;
@@ -15,6 +15,7 @@ class TicToeGame extends StatefulWidget {
   List<int> board;
   int winner;
   bool gameDone;
+  bool isMobile;
   WebSocketChannel socket;
 
  @override
@@ -23,7 +24,7 @@ class TicToeGame extends StatefulWidget {
   }
   @override
   // ignore: no_logic_in_create_state
-  State<TicToeGame> createState() => _TicToeGame(id, board,playerNum,turn,players,auth,winner,gameDone,socket);
+  State<TicToeGame> createState() => _TicToeGame(id, board,playerNum,turn,players,auth,winner,gameDone,socket, isMobile);
 }
 class _TicToeGame extends State<TicToeGame> {
   int id; 
@@ -34,9 +35,10 @@ class _TicToeGame extends State<TicToeGame> {
   List<int> board;
   int winner;
   bool gameDone;
+  bool isMobile;
   WebSocketChannel socket;
 
-  _TicToeGame(this.id, this.board,this.playerNum,this.turn,this.players,this.auth,this.winner,this.gameDone,this.socket){
+  _TicToeGame(this.id, this.board,this.playerNum,this.turn,this.players,this.auth,this.winner,this.gameDone,this.socket,this.isMobile) {
     AddListener();
   }
 
@@ -53,6 +55,7 @@ class _TicToeGame extends State<TicToeGame> {
   }
 
   void AddListener() async{
+    if(mounted){
     socket.stream.listen(
     (data) {
       print(data);
@@ -68,11 +71,14 @@ class _TicToeGame extends State<TicToeGame> {
     },
     onError: (error) => print(error),
   );
+  } else {
+    await Future.delayed(Duration(seconds: 1));  
+    AddListener();
+  }
   }
   
   @override
   Widget build(BuildContext context) {
-    MediaQueryData data = MediaQuery.of(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -95,7 +101,7 @@ class _TicToeGame extends State<TicToeGame> {
       body: Column(
           children: [
             _buildPointsTable(players),
-            grid(board,update,data)
+            grid(board,update,isMobile)
           ]
           ),
     );
@@ -184,8 +190,7 @@ Widget tileRow(List<int> grid, List<int> vals, Function func,bool mobile){
   );
 }
 
-Widget grid(List<int> grid,Function func, MediaQueryData data){
-  bool mobile = data.size.width < data.size.height ; 
+Widget grid(List<int> grid,Function func, bool mobile){
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [

@@ -36,7 +36,6 @@ public class GameController: ControllerBase{
         } else return "Game already loaded";
 
     }
-    
     [HttpGet("Drop")]
     public ActionResult<string> dropGame(int id){
         if(Tracker.getList().Contains(id)){
@@ -67,12 +66,7 @@ public class GameController: ControllerBase{
         if(game != null){
             DBContext.Games.Update(game); 
             var result = _gameService.AddGame(game);
-            Console.WriteLine("RR" + game.GameType);
-            Console.WriteLine("LL" + game.State);
             if(result is Maybe<MyError>.Some  error){
-                Console.WriteLine("22" + game.State);
-                Console.WriteLine(error.Value.getError());
-                Console.WriteLine("22" + game.State);
                 return error;
             } else return new Maybe<MyError>.None();
         } else return new Maybe<MyError>.Some(new ServiceError(2,"Game not found"));
@@ -104,13 +98,11 @@ public class GameController: ControllerBase{
             return "Not sssssdsdsds";
         }
     }
-
     private string getPlayerAuths(string players){
         try{
             string[] pls = players.Split(", ");
             string ret = "";
             foreach(string str in pls){
-                Console.WriteLine(str);
                 ret += DBContext.Users.ToList()
                         .Where(user => user.Name == str)
                         .Select(user => user.Token)
@@ -121,13 +113,10 @@ public class GameController: ControllerBase{
             return "";
         }
     }
-
     [HttpGet]
     public ActionResult<List<Game>> GetGames(){
         return new ActionResult<List<Game>>(_gameService.GetAllGames().ToList());
     }
-
-
     private GameStatus? getGame(int id){
         var x = _gameService.getBoard(id);
         if(x is Maybe<PlayableGame>.Some game){
@@ -148,15 +137,12 @@ public class GameController: ControllerBase{
             return getGame(id);
         }
     }
-
     [HttpGet("Gets/{Ids}")]
     public ActionResult<List<GameStatus>> GetGames(String ids){
         String[] nums = ids.Split(",");
         List<GameStatus> ret = new List<GameStatus>();
-        Console.WriteLine(ids);
         foreach(String id in nums){
-            GameStatus g = getGame(Int32.Parse(id));
-            Console.WriteLine(g.state);
+            GameStatus? g = getGame(Int32.Parse(id));
             ret.Add(getGame(Int32.Parse(id)));
         }   
          return ret;
@@ -174,7 +160,6 @@ public class GameController: ControllerBase{
     }
 
     private string makeMove(int id, string move, string auth){
-        Console.WriteLine(id);
         if(Tracker.getList().FirstOrDefault(ids => ids == id) != 0){
             var x = _gameService.makeMove(id,move,auth);
             if(x is Maybe<MyError>.Some z){
@@ -210,10 +195,13 @@ public class GameController: ControllerBase{
                 HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
         } catch(Exception e) {
-            Console.WriteLine(e);
             Console.WriteLine($"Socket closed on {id}");
-            if(soc.Sock != null){
-                await soc.Sock.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            try{
+                if(soc.Sock != null){
+                    await soc.Sock.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                }
+            } catch (Exception){
+                Console.WriteLine("Socket closed before receiving close message");
             }
         }
         Console.WriteLine(_Sock.getLookup().Count );
@@ -227,7 +215,6 @@ public class GameController: ControllerBase{
                 Console.WriteLine("Close Socket on Sever");
                 await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
             } else{
-                
                 String mes = Encoding.ASCII.GetString(buffer, 0, result.Count);
                 Console.WriteLine("Message Got - " + mes );
                 String[] items = mes.Split(",");

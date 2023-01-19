@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-SizedBox Boxx(String head, List<int> vals, MediaQueryData data, bool Per){
+SizedBox Boxx(String head, List<int> vals, bool isMobile, bool Per){
   int total = vals[0];
   int tic = vals[1];
   int row = vals[2];
@@ -15,9 +15,9 @@ SizedBox Boxx(String head, List<int> vals, MediaQueryData data, bool Per){
   } else { 
     msg = "Total: $total\n  TictacToe: $tic\n  Connect4: $row" ;
   }
-  if(data.size.width < data.size.height){
+  if(isMobile){
     height = 96;
-    width = data.size.width/2.22;
+    width = 199;
     text = Column(
       children: [
       Text(
@@ -32,7 +32,7 @@ SizedBox Boxx(String head, List<int> vals, MediaQueryData data, bool Per){
     )]);
   } else{
     height = 78;
-    width = data.size.width/2.7;
+    width = 500;
     text = Column(
       children: [
         Text(
@@ -57,34 +57,34 @@ SizedBox Boxx(String head, List<int> vals, MediaQueryData data, bool Per){
       );
 }
 
-StatsBody(MediaQueryData data,List<List<int>> info) {
+StatsBody(bool isMobile,List<List<int>> info) {
   return Row(
     children: [
       Column(
         children:  [
-          Boxx("Games Played",info[0],data,false),
-          Boxx("Wins",info[2], data,false),
-          Boxx("Draws",info[3], data,false)
+          Boxx("Games Played",info[0],isMobile,false),
+          Boxx("Wins",info[2], isMobile,false),
+          Boxx("Draws",info[3], isMobile,false)
         ],
       ),
       Column(
         children: [
-          Boxx("Win Rate",info[1],data,true ),
-          Boxx("Losses",info[4], data,false),
-          Boxx("Incomplete",info[5], data,false)
+          Boxx("Win Rate",info[1],isMobile,true ),
+          Boxx("Losses",info[4], isMobile,false),
+          Boxx("Incomplete",info[5], isMobile,false)
         ])]);
 } 
 
 
-Widget CardC(Widget head, Widget bod, MediaQueryData data, BoxDecoration decoration){
+Widget CardC(Widget head, Widget bod, bool isMobile,BoxDecoration decoration){
   double width;
   double height;
-  if(data.size.width > data.size.height){
-    width = data.size.width/1.35;
-    height = data.size.height/2.4;
+  if(isMobile){
+    width = 400;
+    height = 360;
   } else{
-    width = data.size.width/1.04;
-    height = data.size.height/2.4;
+    width = 1000;
+    height = 300;
   }
   return Card(child: Container(  
     decoration: decoration,
@@ -120,12 +120,12 @@ BoxDecoration defaultHead(){
     ]);
 }
 
-Widget StatsHeading(BoxDecoration dec, MediaQueryData data){
+Widget StatsHeading(BoxDecoration dec, bool isMobile){
   double width;
-  if(data.size.width > data.size.height){
-    width = data.size.width/1.364;
+  if(isMobile){
+    width = 390;
   }else{
-    width = data.size.width/1.066;
+    width = 990;
   }
   return Row(
     children: [
@@ -137,6 +137,6 @@ Widget StatsHeading(BoxDecoration dec, MediaQueryData data){
           child: 
             Container(
               decoration: dec,
-            child:CardHeading("Stats", data.size.height/25)
+            child:CardHeading("Stats", 30)
       )))]);
 }

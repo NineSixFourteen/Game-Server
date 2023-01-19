@@ -6,30 +6,30 @@ import 'package:front/Shared/Data.dart';
 import 'package:http/http.dart' as http;
 
 class NewGameScreen extends StatefulWidget {
-  NewGameScreen(this.data,this.playerNames, this.glob,{super.key});
-  MediaQueryData data;
+  NewGameScreen(this.isMobile,this.playerNames, this.glob,{super.key});
+  bool isMobile;
   Data glob;
   List<String> playerNames;
   @override
-  _NewGameScreen createState() => _NewGameScreen(data,playerNames,glob);
+  _NewGameScreen createState() => _NewGameScreen(isMobile,playerNames,glob);
 }
 
 class _NewGameScreen extends State<NewGameScreen> { 
-  _NewGameScreen(this.data, this.playerNames, this.glob);
+  _NewGameScreen(this.isMobile, this.playerNames, this.glob);
   double width = 0;
-  MediaQueryData data;
+  bool isMobile;
   Data glob;
   List<String> playerNames;
   double fontSize = 0;
 
   @override
   Widget build(BuildContext context) {
-    if(data.size.width < data.size.height){
+    if(isMobile){
     width = 370;
-    fontSize = 20;
+    fontSize = 25;
   } else {
     fontSize = 35;
-    width = 900;
+    width = 969;
   }
   return Padding(
     padding: const EdgeInsets.fromLTRB(0,10,0,5),
@@ -41,16 +41,16 @@ class _NewGameScreen extends State<NewGameScreen> {
         children: [
           SizedBox(
             width:  width,
-            height: 100,
+            height: 120,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset("assets/images/plus.png",
-                width: 100,
-                height: 150,),
+                width: 80,
+                height: 140,),
                 const Text(
                   "Create new Game", 
-                  style: TextStyle(color: Colors.white, fontSize: 20)
+                  style: TextStyle(color: Colors.white, fontSize: 35)
                 ),
               ])
             ),
@@ -59,25 +59,25 @@ class _NewGameScreen extends State<NewGameScreen> {
       onPressed: () => {
         showModalBottomSheet(
           context: context, 
-          builder: (_) => newMenu(data,playerNames,fontSize,glob)
+          builder: (_) => newMenu(isMobile,playerNames,fontSize,glob)
         )
       }));
   }
 }
 
 class newMenu extends StatefulWidget {
-  newMenu(this.data,this.playerNames, this.fontSize, this.glob, {super.key});
-  MediaQueryData data;
+  newMenu(this.isMobile,this.playerNames, this.fontSize, this.glob, {super.key});
+  bool isMobile;
   Data glob;
   List<String> playerNames;
   double fontSize;
   @override
-  _newMenu createState() => _newMenu(data,fontSize,glob, playerNames);
+  _newMenu createState() => _newMenu(isMobile,fontSize,glob, playerNames);
 }
 
 class _newMenu extends State<newMenu> {
-  _newMenu( this.data,this.fontSize, this.glob, this.playerNames);
-  MediaQueryData data;
+  _newMenu( this.isMobile,this.fontSize, this.glob, this.playerNames);
+  bool isMobile;
   double fontSize;
   Data glob;
   List<String> playerNames;
@@ -90,10 +90,10 @@ class _newMenu extends State<newMenu> {
       });
     }
     return SizedBox(
-      height: 200,
+      height: 250,
       child: Container(
         decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
-        child : CreateGameMenu(data.size.width < data.size.height, fontSize,Fields,change,context,glob.user,playerNames))
+        child : CreateGameMenu(isMobile, fontSize,Fields,change,context,glob.user,playerNames))
       );
   }
 }
@@ -105,13 +105,13 @@ Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Functio
       children: [
         Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: newGameSel(fields,fontSize,true,func,playerNames),
+            children: newGameSel(fields,fontSize ,true,func,playerNames),
         ),
-        createButton(fontSize,280,40,context,fields, user)
+        createButton(fontSize,200,50,context,fields, user)
     ]);
   } else{
     List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func,playerNames),growable: true);
-    widgets.add(createButton(fontSize - 5,300,100,context,fields, user));
+    widgets.add(createButton(fontSize ,300,140,context,fields, user));
     return Row( 
       mainAxisAlignment: MainAxisAlignment.center,
       children: widgets,
@@ -186,7 +186,7 @@ Widget makePlayerSelect(String title, List<String> fields, List<String> options,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
             Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
-            makePlayerSelHelper(fields, options, fontSize,val,func),
+            makePlayerSelHelper(fields, options, fontSize,val,func,mobile),
           ]
         );
   } else{
@@ -194,7 +194,7 @@ Widget makePlayerSelect(String title, List<String> fields, List<String> options,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
           Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
-          makePlayerSelHelper(fields, options, fontSize,val,func),
+          makePlayerSelHelper(fields, options, fontSize,val,func,mobile),
         ]
       );
   }
@@ -206,7 +206,7 @@ Widget makeSelect(String title, List<String> fields, List<String> options, doubl
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
           Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
-          makeSelectHelper(fields, options, fontSize,val,func),
+          makeSelectHelper(fields, options, fontSize,val,func,mobile),
         ]
       );
   } else{
@@ -214,17 +214,32 @@ Widget makeSelect(String title, List<String> fields, List<String> options, doubl
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
           Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
-          makeSelectHelper(fields, options, fontSize,val,func),
+          makeSelectHelper(fields, options, fontSize,val,func,mobile),
         ]
       );
   }
 }
 
-Widget makeSelectHelper(List<String> fields, List<String> options, double font, int val, Function func ){
+Widget makeSelectHelper(List<String> fields, List<String> options, double font, int val, Function func, bool isMobile){
   String init = fields[val];
-  print(options);
-  return DropdownButton(
-    dropdownColor: const Color.fromARGB(255, 50, 179, 146),
+  double padding = 15; 
+  if(isMobile){
+    padding = 5;
+  } 
+  return DecoratedBox(
+  decoration: BoxDecoration( 
+     color:Colors.blueGrey[300], //background color of dropdown button
+     border: Border.all(color: Colors.black38, width:3), //border of dropdown button
+     borderRadius: BorderRadius.circular(10), //border raiuds of dropdown button
+     boxShadow: const [ //apply shadow on Dropdown button
+            BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
+                blurRadius: 5) //blur radius of shadow
+          ]
+  ),
+  child:Padding(
+    padding: EdgeInsets.all(padding),
+    child:DropdownButton(
     style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
     alignment: Alignment.center,
     value: init,
@@ -237,11 +252,15 @@ Widget makeSelectHelper(List<String> fields, List<String> options, double font, 
     onChanged: (String? newValue) {
         init = newValue!;
         func(val, newValue);
-    },
-  ) ;
+    }, 
+    iconEnabledColor: Colors.white,
+    dropdownColor: Colors.blueGrey[300], 
+    underline: Container(), 
+    )
+  ));
 }
 
-Widget makePlayerSelHelper(List<String> fields, List<String> options, double font, int val, Function func ){
+Widget makePlayerSelHelper(List<String> fields, List<String> options, double font, int val, Function func, bool isMobile){
   String init = fields[val];
   String player = "";
   TextEditingController mycontroller = TextEditingController();
@@ -250,46 +269,69 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
   if(!playerNames.contains("New")){
     playerNames.add("New");
   }
-  if(fields[0] == "New"){
-    print(playerNames);
-    print("Hell");
-  }
-  Widget wid = DropdownButton(
-      dropdownColor: const Color.fromARGB(255, 50, 179, 146),
-      style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
-      alignment: Alignment.center,
-      value: init,
-      items: playerNames.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-          func(val, newValue);
-      },
-    ) ;
+  double padding = 15; 
+  if(isMobile){
+    padding = 5;
+  } 
+  Widget wid = DecoratedBox(
+  decoration: BoxDecoration( 
+     color:Colors.blueGrey[300], //background color of dropdown button
+     border: Border.all(color: Colors.black38, width:3), //border of dropdown button
+     borderRadius: BorderRadius.circular(10), //border raiuds of dropdown button
+     boxShadow: const [ //apply shadow on Dropdown button
+            BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
+                blurRadius: 5) //blur radius of shadow
+          ]
+  ),
+  child:Padding(
+    padding: EdgeInsets.all(padding),
+    child:DropdownButton(
+    style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
+    alignment: Alignment.center,
+    value: init,
+    items: playerNames.map((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList(),
+    onChanged: (String? newValue) {
+        init = newValue!;
+        func(val, newValue);
+    }, 
+    iconEnabledColor: Colors.white,
+    dropdownColor: Colors.blueGrey[300], 
+    underline: Container(), 
+    )
+  ));
+  List<Widget> wigs= [
+    wid,
+    SizedBox(
+      width: 200, 
+      height: 80, 
+      child: 
+          TextField(
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          labelText:'User Name',
+          hintText:'Enter Your Name',
+          ),
+          onChanged: (String? me) => {
+            func(3, me)
+            } )),
+    ];
   if(init == "New"){
-    return  Column(
-      children: [
-        wid,
-        SizedBox(
-          width: 140, 
-          height: 70, 
-          child: 
-              TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText:'User Name',
-              hintText:'Enter Your Name',
-              ),
-              onChanged: (String? me) => {
-                func(3, me)
-                } )),
-        ]);
-            
-
-  
+    if(isMobile){
+      return Row(
+        children: wigs,
+      );
+    } else {
+      return Column(
+        children: wigs,
+      );
+    }
+      
   } else {
     return wid;
   }

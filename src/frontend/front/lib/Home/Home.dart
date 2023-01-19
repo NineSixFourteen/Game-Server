@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, must_be_immutable
+// ignore_for_file: file_names, non_constant_identifier_names, must_be_immutable, unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:front/Shared/Data.dart';
 import 'package:front/Home/LoginScreen.dart';
@@ -17,18 +17,20 @@ class _HomePage extends State<HomePage> {
   _HomePage(this.data );
   @override
   Widget build(BuildContext context) {
+    MediaQueryData queryData = MediaQuery.of(context);
+    double d = queryData.size.shortestSide - 10;
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _body(data)
+      body: _body(data, d < 600)
       ); 
 }}
 
-Widget _body(Data data){
+Widget _body(Data data, bool isMobile){
   //Logged in
   if(!data.isSet){
-    return LoginScreen(data);
+    return LoginScreen(data, isMobile);
   } else {
-    return DisplayScreen(data);
+    return DisplayScreen(data, isMobile);
   }
 
 }

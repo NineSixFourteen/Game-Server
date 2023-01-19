@@ -11,13 +11,13 @@ import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import '../TicTac/TicTacGui.dart';
 
-Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext context){
+Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
   String player = "";
   List<String> players = board.players;
   int emm = 0;
   int moves = getMoves(board.board);
   int photo = 0;
-    for(int i = 0; i < 2;i++){
+  for(int i = 0; i < 2;i++){
     if(players[i] != glob.user){
       player = players[i];
       emm = i == 1 ? 0 : 1;
@@ -26,11 +26,9 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
   }
   Column MiddleBit;
   double fontSize;
-  double width;
-  double nameWidth;
-  if(data.size.width < data.size.height){
-    width = data.size.  width / 1.3;
-    nameWidth = (width/5) * 1.6;
+  List<double> widths;
+  if(isMobile){
+    widths = [90,60,100,120];
     fontSize = 20;
     MiddleBit = Column(
       children: [
@@ -39,9 +37,8 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
 
     ]);
   } else {
-    width = data.size.width / 1.4;
-    nameWidth = (width/5) * 2;
-    fontSize = 50;
+    widths = [200,250,390,130];
+    fontSize = 40;
     MiddleBit = Column(
       children: [
         Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.white, fontSize: 31))]),
@@ -78,17 +75,17 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
       child:  Row(
         children: [
           SizedBox(
-            width: width/5,
+            width: widths[0],
             height: 100,
             child: Image.asset("assets/images/$photo.png")
             ),
           SizedBox(
-            width: (width/5)*1.3,
+            width: widths[1],
             height: 80,
             child: MiddleBit
             ),
           SizedBox(
-            width: nameWidth,
+            width: widths[2],
             height: 75,
             child: Column(
               children:  [
@@ -96,19 +93,19 @@ Widget DisplayGame(Board board, Data glob,MediaQueryData data, BuildContext cont
             ])
           ),
           SizedBox(
-            width:  120,
+            width:  widths[3],
             height: 75,
             child: Column(
               children: [
-                ShowBoard(board.board,data)
+                ShowBoard(board.board,isMobile)
             ])
             ),
     ]),
-      onPressed: () => {loadGame(board.id, context,glob.auth,glob.user)},
+      onPressed: () => {loadGame(board.id, context,glob.auth,glob.user, isMobile)},
   ));
 }
 
-void loadGame(int gameID, BuildContext context, String auth, String name) async{
+void loadGame(int gameID, BuildContext context, String auth, String name, bool isMobile) async{
     try{
       final channel = WebSocketChannel.connect(
         Uri.parse('ws://139.162.210.205/GameSev/connect?id=$gameID'),
@@ -126,7 +123,7 @@ void loadGame(int gameID, BuildContext context, String auth, String name) async{
             MaterialPageRoute(builder: (_) => 
               TicToeGame(id:gameID, auth:auth,socket: channel, 
                 board: bor.board, gameDone: bor.gameDone, playerNum: playerNum,
-                players: bor.players, turn: bor.turn == playerNum, winner: bor.winner
+                players: bor.players, turn: bor.turn == playerNum, winner: bor.winner, isMobile: isMobile,
               )),
           );
         } else if(x['type'] == 2){
@@ -136,7 +133,7 @@ void loadGame(int gameID, BuildContext context, String auth, String name) async{
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => 
-              Connect4(bor, auth, playerNum, channel)),);
+              Connect4(bor, auth, playerNum, channel,isMobile)),);
         }else {
           print(x);
         }} 
@@ -166,11 +163,11 @@ int getMoves(List<int> board) {
   return moves; 
 }
 
-Widget ShowBoard(List<int> board, MediaQueryData data) {
+Widget ShowBoard(List<int> board, bool isMobile) {
   Widget wid;
   double width;
   double height;
-  if(data.size.width < data.size.height){
+  if(isMobile){
     width = 40;
     height = 25 ;
   }  else {

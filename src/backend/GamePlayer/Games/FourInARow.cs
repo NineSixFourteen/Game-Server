@@ -105,7 +105,7 @@ public class FourInARow : PlayableGame{
     }
     public bool isGameComplete(){
         int x = getWinner();
-        if(x != 1){
+        if(x != -1){
             winner = x;
             return true;
         }
@@ -136,6 +136,9 @@ public class FourInARow : PlayableGame{
         } else return new Maybe<MyError>.None();
     }
     private Maybe<MyError> checkMove(int place, int player ){
+        if(isGameComplete()){
+            return new Maybe<MyError>.Some(new MoveError(3,"Game is Finsishedss"));
+        }
         if(place < 0 && place > 7)
             return new Maybe<MyError>.Some(new MoveError(1,"Move is not valid"));
         var move = tryMove(place,player);
@@ -165,6 +168,7 @@ public class FourInARow : PlayableGame{
     }
     private int getPlayer(string auth){
         for(int i = 0; i < playersAuths.Length;i++){
+            Console.WriteLine(playersAuths[i]);
             if(auth == playersAuths[i])
                 return i + 1;
         }

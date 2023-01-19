@@ -13,29 +13,28 @@ import 'package:front/Home/Filter.dart';
 import 'package:front/Home/NewGame.dart';
 
 class DisplayScreen extends StatelessWidget {
-  DisplayScreen(this.data, {super.key});
+  DisplayScreen(this.data, this.isMobile,{super.key});
   Data data;
-
+  bool isMobile;
   @override
   Widget build(BuildContext context) {
-    MediaQueryData queryData = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Display(data: queryData,glob: data),
+      body: Display(isMobile: isMobile ,glob: data),
     );
   }
 }
 
 class Display extends StatefulWidget {
-  Display({super.key, required this.data,required this.glob});
-  MediaQueryData data;
+  Display({super.key, required this.isMobile,required this.glob});
+  bool isMobile;
   Data glob;
   @override
-  State<StatefulWidget> createState() => _Display(data,glob,"","");
+  State<StatefulWidget> createState() => _Display(isMobile,glob,"","");
 }
 
 class _Display extends State<Display> {
-  _Display(this.data, this.glob,this.name,this.auth){
+  _Display(this.isMobile, this.glob,this.name,this.auth){
     name = glob.user;
     auth = glob.auth;
     KK();
@@ -43,7 +42,7 @@ class _Display extends State<Display> {
 
   String name;
   String auth;
-  MediaQueryData data;
+  bool isMobile;
   Data glob;
 
   List<Board> boards = List.empty(growable: true);
@@ -113,16 +112,16 @@ class _Display extends State<Display> {
               Column(
                 children: [
                   CardC(
-                    StatsHeading(defaultHead(),data),
-                    StatsBody(data, anaylseGames()),
-                    data,backG(Colors.black)
+                    StatsHeading(defaultHead(),isMobile),
+                    StatsBody(isMobile, anaylseGames()),
+                    isMobile,backG(Colors.black)
                   ),
-                  filter(data,filters,changeFilters,playerNames),
-                  ControllBoard(navInfo,data.size.width < data.size.height,changeNav, (boards.length/navInfo[1]).ceil(),KK ),
-                  NewGameScreen(data,playerNames,glob),
+                  filter(isMobile,filters,changeFilters,playerNames),
+                  ControllBoard(navInfo,isMobile,changeNav, (boards.length/navInfo[1]).ceil(),KK ),
+                  NewGameScreen(isMobile,playerNames,glob),
                   Column(
                     children: displayBoards.map(
-                      (board) => DisplayGame(board, glob,data,context)
+                      (board) => DisplayGame(board, glob,isMobile,context)
                       ).toList(),
                   )])]
     ))]));
@@ -155,77 +154,31 @@ class _Display extends State<Display> {
         filteredBoards.add(bo);
       });
     }
-    print(filteredBoards.length);
   }
 
   void KK() async {
-    //Fake Data for testing 
-    //fakeGames();
-    print(100);
-    await Future.delayed(Duration(seconds: 1));
-    setState(() {
-      displayBoards = List.empty(growable: true);
-      boards = List.empty(growable: true);
-    });
-    try{
-      final response = await http
-        .get(Uri.parse('http://139.162.210.205/GameSev/Games?name=$name&auth=$auth'));
-        if(response.statusCode == 200){
-          if(response.body != "Error: User not found") {
-            String l = response.body.substring(1, response.body.length - 1);
-            getGames(l);
-            filterBoards(filters[0],filters[1],filters[2]);
-            updateDisplayBoards();
-          }
-      }
-    } catch (Exception){
-      print(Exception);
-    }
-    
-  }
-  void fakeGames() {
-    List<Board> boar = List.empty(growable: true);
-    boar.add(
-      const Board(players: ["Test1","player1"], board: [0,0,0,1,2,1,0,2,0], turn: 0, winner: 2, gameDone: true, photos: [0,2], id: 0)
-    );
-    boar.add((
-      const Board( id: 4,players: ["Stranger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: 1, gameDone: true,photos: [1,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["ssssda","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 1, winner: -1, gameDone: false,photos:[4,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["dsad","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: -1, gameDone: false  ,photos: [3,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: 2, gameDone: true,photos: [0,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: 2, gameDone: true  ,photos: [3,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: -1, gameDone: true,photos: [3,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: 2, gameDone: true,photos: [3,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,2,0], turn: 2, winner: 2, gameDone: true  ,photos: [3,2]))
-    );
-    boar.add((
-      const Board( id: 4,players: ["Badger","Test1"], board: [2,1,2,1,2,1,1,0,2,0], turn: 1, winner: -1, gameDone: true,photos: [3,2]))
-    );
-    for(Board bor in boar){
-      if(!boards.contains(bor)){
-        for(String name in bor.players){
-          if(!playerNames.contains(name)){
-            playerNames.add(name);
-          }
+    if(mounted){
+      setState(() {
+        displayBoards = List.empty(growable: true);
+        boards = List.empty(growable: true);
+      });
+      try{
+        final response = await http
+          .get(Uri.parse('http://139.162.210.205/GameSev/Games?name=$name&auth=$auth'));
+          if(response.statusCode == 200){
+            if(response.body != "Error: User not found") {
+              String l = response.body.substring(1, response.body.length - 1);
+              getGames(l);
+              filterBoards(filters[0],filters[1],filters[2]);
+              updateDisplayBoards();
+            }
         }
-        setState(() {
-          boards.add(bor);
-        });
+      } catch (Exception){
+        print(Exception);
       }
+    } else {
+      await Future.delayed(Duration(seconds: 5)); 
+      KK();
     }
   }
   void getGames(String games) async {
@@ -350,16 +303,20 @@ class _Display extends State<Display> {
 }
 
 Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK){
-  double width = 935;
-  double height = 150;
+  double width = 1000;
+  double height = 140;
+  if(mobile){
+    width = 400;
+    height = 150;
+  }
   return Padding(
     padding: const EdgeInsets.fromLTRB(0,4,0,0),
     child: SizedBox(
     width: width,
     height: height,
     child: Container(
-      decoration: BoxDecoration(
-        color: Colors.blueGrey[200],
+      decoration: const BoxDecoration(
+        color: Colors.white,
       ),
       child: Column(
         children: [
@@ -406,9 +363,9 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages,
                       Icon(
                         Icons.refresh_sharp,
                         color: Colors.white,
-                        size: 45.0,
+                        size: 25.0,
                         ),
-                        Text("Refresh", style: TextStyle(color: Colors.white, fontSize: 30),)
+                        Text("Refresh", style: TextStyle(color: Colors.white, fontSize: 20),)
                       ],
                     ),
                   ),

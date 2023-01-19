@@ -2,17 +2,17 @@
 import 'package:front/Shared/TextSelc.dart';
 import 'package:flutter/material.dart';
 
-Widget filter(MediaQueryData data, List<String> filters, Function change, List<String> playerNames) {
+Widget filter(bool isMobile, List<String> filters, Function change, List<String> playerNames) {
   double width;
   double height;
   double fontSize;
-  if(data.size.width < data.size.height){
+  if(isMobile){
     width = 400;
     height = 150;
     fontSize = 20;
   } else {
-    width = 935;
-    height = 150;
+    width = 1000;
+    height = 140;
     fontSize = 24;
   }
   return SizedBox(
@@ -43,17 +43,17 @@ Widget filter(MediaQueryData data, List<String> filters, Function change, List<S
               SizedBox(
                 height: height * 0.7,
                 width: width/3,
-                child: TextSec("Player",playerNames, data.size.width < data.size.height, fontSize, change, 0, filters),
+                child: TextSec("Player",playerNames, isMobile, fontSize, change, 0, filters),
               ),
               SizedBox(
                 height: height * 0.7,
                 width: width/3,
-                child: TextSec("Result",["All","Win","Lose","Draw","Incomplete"], data.size.width < data.size.height, fontSize, change, 1, filters),
+                child: TextSec("Result",["All","Win","Lose","Draw","Incomplete"], isMobile, fontSize, change, 1, filters),
               ),
               SizedBox(
                 height: height * 0.7,
                 width: width/3,
-                child: TextSec("Gamemode",['All', 'TicTacToe', 'Connect4', ], data.size.width < data.size.height, fontSize, change, 2, filters),
+                child: TextSec("Gamemode",['All', 'TicTacToe', 'Connect4', ], isMobile, fontSize, change, 2, filters),
               ),
             ],
           )

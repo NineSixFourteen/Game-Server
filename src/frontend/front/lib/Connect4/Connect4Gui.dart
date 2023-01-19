@@ -1,4 +1,4 @@
-// ignore_for_file: no_logic_in_create_state, use_key_in_widget_constructors, must_be_immutable
+// ignore_for_file: no_logic_in_create_state, use_key_in_widget_constructors, must_be_immutable, empty_catches, non_constant_identifier_names
 
 import 'dart:convert';
 
@@ -8,33 +8,23 @@ import 'Board4.dart';
 import 'package:http/http.dart' as http;
 
 class Connect4 extends StatefulWidget {
-  Connect4(this.board, this.auth,this.playerNum,this.socket);
+  Connect4(this.board, this.auth,this.playerNum,this.socket,this.isMobile);
   Board4 board;
   int playerNum;
   String auth;
+  bool isMobile;
   WebSocketChannel socket;
-  List<List<int>> fakeBoard = 
-  [
-    [0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0],
-    [0,0,0,1,0,0,0],
-    [1,0,0,2,0,0,0],
-    [1,0,0,2,0,0,0],
-    [1,0,2,2,0,0,0]
-  ];
-
   @override
   State<Connect4> createState() {
-      return _Connect4(board.id, board.players, auth, 1, board.turn == playerNum, board.board, board.gameDone, board.winner,socket);
+      return _Connect4(board.id, board.players, auth, 1, board.turn == playerNum, board.board, board.gameDone, board.winner,socket, isMobile);
   }
 }
 
 class _Connect4 extends State<Connect4> {
-  _Connect4(this.id,this.players,this.auth,this.playerNum,this.turn, this.board, this.gameDone,this.winner,this.socket){
+  _Connect4(this.id,this.players,this.auth,this.playerNum,this.turn, this.board, this.gameDone,this.winner,this.socket, this.isMobile){
     AddListener();
   }
-  
+  bool isMobile;
   int id; 
   List<String> players;
   String auth;
@@ -60,7 +50,7 @@ class _Connect4 extends State<Connect4> {
   }
 
   getMessage(int move) {
-    return "41  ,$move,$auth";
+    return "$id,$move,$auth";
   }
 
   void AddListener() async{
@@ -89,6 +79,28 @@ class _Connect4 extends State<Connect4> {
 
   @override
   Widget build(BuildContext context) {
+    Widget wid = Column(
+              children: [
+                Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 30) ,child: makeDisplay(players,winner,gameDone,turn,id,isMobile)),
+                makeConnect4Board(board,sendMove, updateHover, hovering,playerNum,isMobile)
+              ]);
+    if(isMobile){
+      wid = ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          SizedBox(
+            height: 300,
+            child: Column(
+              children: [
+                Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 30) ,child: makeDisplay(players,winner,gameDone,turn,id,isMobile)),
+                makeConnect4Board(board,sendMove, updateHover, hovering,playerNum,isMobile)
+              ],
+            ),
+          )
+        ],
+    );
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -108,34 +120,22 @@ class _Connect4 extends State<Connect4> {
           )
       ),
       backgroundColor: const Color.fromARGB(150, 19, 2, 46),
-      body: Column(
-          children: [
-            Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 30) ,child: makeDisplay(players,winner,gameDone,turn,id)),
-            makeConnect4Board(board,sendMove, updateHover, hovering,playerNum),//Todo move func
-            ElevatedButton(
-              onPressed: () => getBoard(41), 
-              child: const Text("Press me"))
-          ]
-          ),
-      );
+      body: wid);
   }
   
   getBoard(int i) async { 
     try{
       final GameResponse = await http
-        .get(Uri.parse('http://139.162.210.205/GameSev/Game/Get?id=41'));
+        .get(Uri.parse('http://139.162.210.205/GameSev/Game/Get?id=$i'));
       if(GameResponse.statusCode == 200){
         if(GameResponse.body != ""){
-          Board4 bor = Board4.fromJson(jsonDecode(GameResponse.body),41);
-          print(100); 
+          Board4 bor = Board4.fromJson(jsonDecode(GameResponse.body),i);
           setState(() { 
             players = bor.players;
             board = bor.board;
           });
         }}
-      } catch (e){
-        print(e);
-      }
+      } on Exception{ }
     }
     
   List<List<int>> toBoard(String msg) {
@@ -148,10 +148,13 @@ class _Connect4 extends State<Connect4> {
     }
     return board;
   } 
+}
 
+Widget makeConnect4Board(List<List<int>> board, Function func, Function hover, List<bool> hovers,int playerNum, bool isMobile) {
+  double padding = 20;
+  if(isMobile){
+    padding = 10;
   }
-
-Widget makeConnect4Board(List<List<int>> board, Function func, Function hover, List<bool> hovers,int playerNum) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
@@ -160,14 +163,14 @@ Widget makeConnect4Board(List<List<int>> board, Function func, Function hover, L
           color: const Color.fromARGB(255, 19, 2, 46),
           borderRadius: BorderRadius.circular(10)
         ),
-        child: Padding(padding: const EdgeInsets.all(20), child:Row(children: List.generate(7, (i) => i + 1).map((row) {
-         return makeRow(board, row - 1,func,hover,hovers,playerNum);
+        child: Padding(padding: EdgeInsets.all(padding), child:Row(children: List.generate(7, (i) => i + 1).map((row) {
+         return makeRow(board, row - 1,func,hover,hovers,playerNum, isMobile);
         }).toList())))]
     
   );
 }
 
-Widget makeRow(List<List<int>> board, int row, Function func, Function hover, List<bool> hovers,int playerNum) {
+Widget makeRow(List<List<int>> board, int row, Function func, Function hover, List<bool> hovers,int playerNum, bool isMobile) {
   int ind = -1; 
   if(hovers[row]){
     ind = findFirstEmpty(board, row);
@@ -188,7 +191,7 @@ Widget makeRow(List<List<int>> board, int row, Function func, Function hover, Li
   onPressed: (){ func(row);}, 
   child:
     Column(
-      children: List.generate(7, (i) => i + 1).map((til) => tile(til - 1, func, row, board,til -1 == ind,playerNum)).toList(),
+      children: List.generate(7, (i) => i + 1).map((til) => tile(til - 1, func, row, board,til -1 == ind,playerNum, isMobile)).toList(),
     ));
 }
 
@@ -201,9 +204,17 @@ int findFirstEmpty(List<List<int>> board, int row) {
   return -1;
 }
 
-Widget tile(int col, Function func, int row, List<List<int>> board, bool show,int playerNum){
+Widget tile(int col, Function func, int row, List<List<int>> board, bool show,int playerNum, bool isMobile){
   Color tileColour; 
   int value = board[col][row];
+  double width = 80;
+  double height = 60;
+  double padding = 10;
+  if(isMobile){
+    padding = 4;
+    width = 40;
+    height = 50;
+  }
   switch(value){
     case 1:
       tileColour = Colors.yellow;
@@ -220,14 +231,14 @@ Widget tile(int col, Function func, int row, List<List<int>> board, bool show,in
     tileColour = show ? Colors.yellow.withOpacity(0.6) : tileColour;
   }
   return Padding(
-    padding: const EdgeInsets.all(10),
+    padding: EdgeInsets.all(padding),
     child:SizedBox(
-    width: 80,
-    height: 60,
+    width: width,
+    height: height,
     child: Container(
       // ignore: prefer_const_constructors
       decoration: BoxDecoration(
-        border: Border.all(width: 2 , color: Color.fromARGB(255, 0, 102, 255)),
+        border: Border.all(width: 2 , color: const Color.fromARGB(255, 0, 102, 255)),
         color: tileColour,
         shape: BoxShape.circle
       ),
@@ -236,18 +247,24 @@ Widget tile(int col, Function func, int row, List<List<int>> board, bool show,in
   ));
 }
 
-Widget makeDisplay(List<String> players, int winner, bool gameDone, bool turn, int id) {
+Widget makeDisplay(List<String> players, int winner, bool gameDone, bool turn, int id, bool isMobile) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          playerInfo(1, players[0], 2),
-          playerInfo(2, players[1], 4)
+          playerInfo(1, players[0], 2, isMobile),
+          playerInfo(2, players[1], 4, isMobile)
         ],
   );
 }
 
-Widget playerInfo(int playerNum, String player, int photo) {
+Widget playerInfo(int playerNum, String player, int photo, bool isMobile) {
   Color playerColour;
+  double fontsize = 30;
+  double width = 200;
+  if(isMobile){
+    fontsize = 20;
+    width = 100;
+  }
   if(playerNum == 2){
     playerColour = Colors.red;
   } else {
@@ -255,13 +272,13 @@ Widget playerInfo(int playerNum, String player, int photo) {
   }
   return Row(
     children:[
-      Image.asset("assets/images/$photo.png", width: 200, height: 100),
+      Image.asset("assets/images/$photo.png", width: width, height: 100),
       Column(
         children: [
-          Text(player, style: const TextStyle(color: Colors.white, fontSize: 30)),
+          Text(player, style: TextStyle(color: Colors.white, fontSize: fontsize)),
           Container(
-          width: 40.0,
-          height: 40.0,
+          width: width/5,
+          height: width/5,
           decoration: BoxDecoration(
             color: playerColour,
             shape: BoxShape.circle,

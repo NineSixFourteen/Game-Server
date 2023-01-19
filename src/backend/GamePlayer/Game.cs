@@ -14,12 +14,14 @@ public class Game {
     public Game(int id, int gameType,string state,string Players, string PlayersAuths,int turn ){
         Id = id;
         GameType = gameType;
-        if(GameType == 1){
-            State = "000000000";
-        } else if(GameType == 2){
-            String temp = "";
-            for(int i = 0 ; i < 49;i++) temp+="0";
-            State = temp;
+        if(state == ""){
+            if(GameType == 1){
+                State = "000000000";
+            } else if(GameType == 2){
+                String temp = "";
+                for(int i = 0 ; i < 49;i++) temp+="0";
+                State = temp;
+            }
         } else {
             State = state;
         }

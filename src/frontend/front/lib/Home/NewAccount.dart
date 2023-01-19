@@ -34,17 +34,17 @@ void AccountCreation(BuildContext context,bool suc) {
 }
 
 class newAccount extends StatefulWidget {
-  newAccount(this.data, this.fontSize, this.glob, {super.key});
-  MediaQueryData data;
+  newAccount(this.isMobile, this.fontSize, this.glob, {super.key});
+  bool isMobile;
   Data glob;
   double fontSize;
   @override
-  _newAccount createState() => _newAccount(data,fontSize,glob);
+  _newAccount createState() => _newAccount(isMobile,fontSize,glob);
 }
 
 class _newAccount extends State<newAccount> {
-  _newAccount( this.data,this.fontSize, this.glob);
-  MediaQueryData data;
+  _newAccount(this.isMobile,this.fontSize, this.glob);
+  bool isMobile;
   double fontSize;
   Data glob;
 
@@ -54,7 +54,7 @@ class _newAccount extends State<newAccount> {
       height: 200,
       child: Container(
         decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
-        child :  makeMenu(data.size.width < data.size.height, context)
+        child :  makeMenu(isMobile, context)
       ));
   }
 
