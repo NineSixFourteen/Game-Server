@@ -59,7 +59,7 @@ class _Display extends State<Display> {
 
   var navInfo = [
     0,
-    5
+    3
   ];
 
   void changeNav(int val, String newVal){
@@ -120,9 +120,7 @@ class _Display extends State<Display> {
                   ControllBoard(navInfo,isMobile,changeNav, (boards.length/navInfo[1]).ceil(),KK ),
                   NewGameScreen(isMobile,playerNames,glob),
                   Column(
-                    children: displayBoards.map(
-                      (board) => DisplayGame(board, glob,isMobile,context)
-                      ).toList(),
+                    children: GamesDis(displayBoards,glob,isMobile, context),
                   )])]
     ))]));
   }
@@ -302,6 +300,21 @@ class _Display extends State<Display> {
   
 }
 
+List<Widget> GamesDis(List<Board> displayBoards, Data glob, bool isMobile,BuildContext context) {
+  List<Widget> wiges = List.empty(growable: true);
+  List<Widget> temp = List.empty(growable: true);
+  for(int i =0; i < displayBoards.length;){
+    List<Widget> temp = List.empty(growable: true);
+    for(int l = 0; l < 3;l++){
+      if(i < displayBoards.length){
+        temp.add(DisplayGame(displayBoards[i++],glob,isMobile,context));
+      }
+    }
+    wiges.add(Row(children: temp));
+  }
+  return wiges;
+}
+
 Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK){
   double width = 1000;
   double height = 140;
@@ -339,7 +352,7 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages,
               SizedBox(
                 height: height *0.7,
                 width: width/3,
-                child: TextSec("Show    ",["1","2","3","4","5","10","20"], mobile, 25, change, 1, dumbFunc(navInfo)),
+                child: TextSec("Show    ",["3","6","9","12","15","18","21"], mobile, 25, change, 1, dumbFunc(navInfo)),
               ),
               SizedBox(
                 height: height*0.7,

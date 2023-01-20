@@ -24,29 +24,12 @@ Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
       photo = board.photos[i];
     }
   }
-  Column MiddleBit;
-  double fontSize;
-  List<double> widths;
-  if(isMobile){
-    widths = [90,60,100,120];
-    fontSize = 20;
-    MiddleBit = Column(
-      children: [
-        const Text("Vs       ",style: TextStyle(color: Colors.white, fontSize: 25)),
-        Text(player,style: const TextStyle(color: Colors.white, fontSize: 20)),
-
-    ]);
-  } else {
-    widths = [200,250,390,130];
-    fontSize = 40;
-    MiddleBit = Column(
-      children: [
-        Row(children: [Text("  Vs $player",style: const TextStyle(color: Colors.white, fontSize: 31))]),
-        Row(children: [Text("       Moves Made $moves",style: const TextStyle(color: Colors.white, fontSize: 26))])
-    ]);
-  }
   Color color;
   Text text;
+  double fontSize = 25;
+  if(isMobile){
+    fontSize = 20;
+  }
   if(board.gameDone){
     if(board.winner == emm + 1){
       color = const Color.fromARGB(255, 18, 204, 27);
@@ -60,49 +43,95 @@ Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
     }
   } else {
     if(board.turn == emm ){
-      text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 15, 2, 44), fontSize: fontSize));
+      text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 8, 10, 161), fontSize: fontSize));
     } else {
      text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));
     }
     color = const Color.fromARGB(255, 19, 187, 230);
   }
   return Padding(
-    padding: const EdgeInsets.fromLTRB(0,10,0,5),
+    padding: const EdgeInsets.all(10),
     child:ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(color),
-      ),
-      child:  Row(
-        children: [
-          SizedBox(
-            width: widths[0],
-            height: 100,
-            child: Image.asset("assets/images/$photo.png")
-            ),
-          SizedBox(
-            width: widths[1],
-            height: 80,
-            child: MiddleBit
-            ),
-          SizedBox(
-            width: widths[2],
-            height: 75,
-            child: Column(
-              children:  [
-                text
-            ])
-          ),
-          SizedBox(
-            width:  widths[3],
-            height: 75,
-            child: Column(
-              children: [
-                ShowBoard(board.board,isMobile)
-            ])
-            ),
-    ]),
+      style: TextButton.styleFrom(
+          backgroundColor: color,
+          minimumSize: Size.zero, // Set this
+          padding: EdgeInsets.zero, // and this
+        ),
+      child: GameDis(board,text,moves,player, photo, isMobile),
       onPressed: () => {loadGame(board.id, context,glob.auth,glob.user, isMobile)},
   ));
+}
+
+Widget GameDis(Board board, Text text, int moves, String player, int photo, bool isMobile) {
+  double width = 350;
+  double height = 350;
+  if(isMobile){
+    width = 100;
+    height = 100;
+  }
+  return SizedBox(
+    width: width,
+    height: height,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GameBoard(board, isMobile),
+        GameInfo(board, isMobile, text,photo,player)
+      ]),
+  );
+}
+
+Widget GameInfo(Board board, bool mobile, Text text, int photo, String player) {
+  double width = 400;
+  double height = 150;
+  if(mobile){
+    width = 100;
+    height = 100;
+  }
+  return SizedBox(
+    width: width,
+    height: height,
+    child: Container(
+      decoration: const BoxDecoration(color: Colors.black),
+      child: Column(children: [
+        Row(
+          children:[
+          SizedBox(
+              width: 120,
+              height: 100,
+              child: Image.asset("assets/images/$photo.png")
+            ),
+          Text(player, style: const TextStyle(color: Colors.white, fontSize: 50),)
+          ]),
+        text
+      ])
+    )
+  );
+  
+}
+
+Widget GameBoard(Board board, bool mobile) {
+  double width = 400;
+  double height = 200;
+  if(mobile){
+    width = 100;
+    height = 100;
+  }
+  return SizedBox(
+    width: width,
+    height: height,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:[
+        Container(
+      decoration: const BoxDecoration(color: Color.fromARGB(255, 86, 10, 158)),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: ShowBoard(board.board, mobile)))])]),
+  );
 }
 
 void loadGame(int gameID, BuildContext context, String auth, String name, bool isMobile) async{
@@ -171,8 +200,8 @@ Widget ShowBoard(List<int> board, bool isMobile) {
     width = 40;
     height = 25 ;
   }  else {
-    width = 40;
-    height = 25;
+    width = 60;
+    height = 55;
   } 
   if(board.length == 9){
     wid = Row(
@@ -242,7 +271,7 @@ Widget smallTile(int val, double width, double height){
         onPressed: () => {}, 
             child: Text(
               msg,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
+              style: const TextStyle(fontSize: 30, color: Colors.white),
               textAlign: TextAlign.left,
         ))
       );
