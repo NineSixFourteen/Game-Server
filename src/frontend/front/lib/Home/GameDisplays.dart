@@ -11,6 +11,101 @@ import 'package:http/http.dart' as http;
 import '../TicTac/TicBoard.dart';
 import '../TicTac/TicTacGui.dart';
 
+Widget OtherView(Board board, Data glob, bool isMobile, BuildContext context,){
+  String player = "";
+  List<String> players = board.players;
+  int emm = 0;
+  int moves = getMoves(board.board);
+  int photo = 0;
+  for(int i = 0; i < 2;i++){
+    if(players[i] != glob.user){
+      player = players[i];
+      emm = i == 1 ? 0 : 1;
+      photo = board.photos[i];
+    }
+  }
+  Column MiddleBit;
+  double fontSize;
+  List<double> widths;
+  Color color;
+  Text text;
+  if(isMobile){
+    widths = [90,60,100,120];
+    fontSize = 20;
+    MiddleBit = Column(
+      children: [
+        const Text("Vs       ",style: TextStyle(color: Colors.white, fontSize: 25)),
+        Text(player,style: const TextStyle(color: Colors.white, fontSize: 20)),
+
+    ]);
+  } else {
+    widths = [200,250,390,130];
+    fontSize = 50;
+    MiddleBit = Column(
+      children: [
+        Row(children: [Text(player,style: const TextStyle(color: Colors.white, fontSize: 32))]),
+        Row(children: [Text("Moves Made $moves",style: const TextStyle(color: Colors.white, fontSize: 28))])
+    ]);
+  }
+  if(board.gameDone){
+    if(board.winner == emm + 1){
+      color = const Color.fromARGB(255, 18, 204, 27);
+      text = Text( "Victory",style: TextStyle(color: Colors.black, fontSize: fontSize));
+    } else if(board.winner == -1){
+      text = Text( "Draw",style: TextStyle(color: Colors.black, fontSize: fontSize));
+      color = const Color.fromARGB(255, 63, 17, 65);
+    } else {
+      text = Text( "Defeat",style: TextStyle(color: Colors.black, fontSize: fontSize));
+      color = const Color.fromARGB(255, 223, 11, 11);
+    }
+  } else {
+    if(board.turn == emm ){
+      text = Text( "Your Turn",style: TextStyle(color: const Color.fromARGB(255, 8, 10, 161), fontSize: fontSize));
+    } else {
+     text = Text( "Opponent Turn",style: TextStyle(color: const Color.fromARGB(255, 134, 8, 8), fontSize: fontSize));
+    }
+    color = const Color.fromARGB(255, 19, 187, 230);
+  }
+  return Padding(
+    padding: const EdgeInsets.all(10),
+    child:ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStatePropertyAll(color),
+      ),
+      onPressed: () { 
+
+       },
+      child:  Row(
+        children: [
+          SizedBox(
+            width: widths[0],
+            height: 100,
+            child: Image.asset("assets/images/$photo.png")
+            ),
+          SizedBox(
+            width: widths[1],
+            height: 80,
+            child: MiddleBit
+            ),
+          SizedBox(
+            width: widths[2],
+            height: 75,
+            child: Column(
+              children:  [
+                text
+            ])
+          ),
+          SizedBox(
+            width:  widths[3],
+            height: 75,
+            child: Column(
+              children: [
+                ShowBoard(board.board,isMobile, false)
+            ])
+            ),
+    ])));
+}
+
 Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
   String player = "";
   List<String> players = board.players;
@@ -26,7 +121,7 @@ Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
   }
   Color color;
   Text text;
-  double fontSize = 25;
+  double fontSize = 40;
   if(isMobile){
     fontSize = 20;
   }
@@ -57,12 +152,12 @@ Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
           minimumSize: Size.zero, // Set this
           padding: EdgeInsets.zero, // and this
         ),
-      child: GameDis(board,text,moves,player, photo, isMobile),
+      child: GameDis(board,text,moves,player, photo, isMobile, color),
       onPressed: () => {loadGame(board.id, context,glob.auth,glob.user, isMobile)},
   ));
 }
 
-Widget GameDis(Board board, Text text, int moves, String player, int photo, bool isMobile) {
+Widget GameDis(Board board, Text text, int moves, String player, int photo, bool isMobile, Color color) {
   double width = 350;
   double height = 350;
   if(isMobile){
@@ -75,35 +170,38 @@ Widget GameDis(Board board, Text text, int moves, String player, int photo, bool
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        text,
         GameBoard(board, isMobile),
-        GameInfo(board, isMobile, text,photo,player)
+        GameInfo(board, isMobile, text,photo,player,color)
       ]),
   );
 }
 
-Widget GameInfo(Board board, bool mobile, Text text, int photo, String player) {
+Widget GameInfo(Board board, bool mobile, Text text, int photo, String player, Color col) {
   double width = 400;
-  double height = 150;
+  double height = 97;
   if(mobile){
     width = 100;
     height = 100;
+  }
+  Color color = Color.fromARGB(255, 5, 141, 209);
+  if(col != Color.fromARGB(255, 19, 187, 230)){
+    color = col;
   }
   return SizedBox(
     width: width,
     height: height,
     child: Container(
-      decoration: const BoxDecoration(color: Colors.black),
-      child: Column(children: [
+      decoration: BoxDecoration(color: color),
+      child: 
         Row(
           children:[
           SizedBox(
-              width: 120,
-              height: 100,
+              width: 130,
+              height: 97,
               child: Image.asset("assets/images/$photo.png")
             ),
           Text(player, style: const TextStyle(color: Colors.white, fontSize: 50),)
-          ]),
-        text
       ])
     )
   );
@@ -130,7 +228,7 @@ Widget GameBoard(Board board, bool mobile) {
       decoration: const BoxDecoration(color: Color.fromARGB(255, 86, 10, 158)),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: ShowBoard(board.board, mobile)))])]),
+        child: ShowBoard(board.board, mobile,true)))])]),
   );
 }
 
@@ -192,47 +290,102 @@ int getMoves(List<int> board) {
   return moves; 
 }
 
-Widget ShowBoard(List<int> board, bool isMobile) {
+Widget ShowBoard(List<int> board, bool isMobile, bool view) {
   Widget wid;
   double width;
   double height;
-  if(isMobile){
-    width = 40;
-    height = 25 ;
-  }  else {
-    width = 60;
-    height = 55;
-  } 
+  double fontSize;
+  if(view){
+    if(isMobile){
+      width = 40;
+      height = 25 ;
+      fontSize = 20;
+    }  else {
+      width = 70;
+      height = 60;
+      fontSize = 35;
+    }
+  } else {
+    if(isMobile){
+      width = 50;
+      height = 25;
+      fontSize = 20;
+    }  else {
+      width = 40;
+      height = 25;
+      fontSize = 16;
+    }
+  }
   if(board.length == 9){
     wid = Row(
       children: [
         Column(
           children: [
-            smallTile(board[0],width,height),
-            smallTile(board[3],width,height),
-            smallTile(board[6],width,height)
+            smallTile(board[0],width,height,fontSize),
+            smallTile(board[3],width,height,fontSize),
+            smallTile(board[6],width,height,fontSize)
           ],
         ),
         Column(
           children: [
-            smallTile(board[1],width,height),
-            smallTile(board[4],width,height),
-            smallTile(board[7],width,height)
+            smallTile(board[1],width,height,fontSize),
+            smallTile(board[4],width,height,fontSize),
+            smallTile(board[7],width,height,fontSize)
           ],
         ),
         Column(
           children: [
-            smallTile(board[2],width,height),
-            smallTile(board[5],width,height),
-            smallTile(board[8],width,height)
+            smallTile(board[2],width,height,fontSize),
+            smallTile(board[5],width,height,fontSize),
+            smallTile(board[8],width,height,fontSize)
           ],
         )
       ],
     );
   } else{
-    wid = const Text("Connect4", style: TextStyle(color: Colors.red),);
+    if(view){
+      wid = Row(children: [0,1,2,3,4,5,6].map((e) => Connect4SmallRow(board,e,isMobile)).toList());
+    } else {
+      wid = const Text("Connect4", style: TextStyle(color: Colors.black, fontSize: 20),);
+    }
   }
   return wid;
+}
+
+Widget Connect4SmallRow(List<int> board, int row, bool isMobile) {
+  double width = 35;
+  double height = 25;
+  if(isMobile){
+    width = 10;
+    height = 10;
+  }
+  return Container(
+    child:Column(
+      children: [6,5,4,3,2,1,0].map(
+        (e) => SizedBox(
+          width: width,
+          height: height,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 2 , color: const Color.fromARGB(255, 0, 102, 255)),
+              shape: BoxShape.circle,
+              color: getColour(board[row + e * 7])
+            )),
+        )).toList()
+  ));
+
+
+
+}
+
+Color getColour(int board) {
+  if(board == 0){
+    return Colors.blue;
+  } else if(board == 1){
+    return Colors.yellow;
+  } else {
+    return Colors.red;
+  }
 }
 
 BoxDecoration backG(Color color){
@@ -249,7 +402,7 @@ BoxDecoration backG(Color color){
     );
 }
 
-Widget smallTile(int val, double width, double height){
+Widget smallTile(int val, double width, double height,double fontSize){
   const red = MaterialStatePropertyAll<Color>(Colors.red);
   const blue = MaterialStatePropertyAll<Color>(Colors.blue);
   var color = MaterialStatePropertyAll<Color>(Colors.grey[500]!);
@@ -271,7 +424,7 @@ Widget smallTile(int val, double width, double height){
         onPressed: () => {}, 
             child: Text(
               msg,
-              style: const TextStyle(fontSize: 30, color: Colors.white),
+              style: TextStyle(fontSize: fontSize, color: Colors.white),
               textAlign: TextAlign.left,
         ))
       );

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks, avoid_function_literals_in_foreach_calls
+// ignore_for_file: file_names, non_constant_identifier_names, unused_local_variable, empty_catches, must_be_immutable, no_logic_in_create_state, unrelated_type_equality_checks, avoid_function_literals_in_foreach_calls, sort_child_properties_last
 
 import 'dart:convert';
 
@@ -44,7 +44,7 @@ class _Display extends State<Display> {
   String auth;
   bool isMobile;
   Data glob;
-
+  bool view = false;
   List<Board> boards = List.empty(growable: true);
   List<Board> filteredBoards = List.empty(growable: true);
   List<Board> displayBoards = List.empty(growable: true);
@@ -59,8 +59,14 @@ class _Display extends State<Display> {
 
   var navInfo = [
     0,
-    3
+    6
   ];
+
+  void switchView(){
+    setState(() {
+      view = !view;
+    });
+  }
 
   void changeNav(int val, String newVal){
     setState(() {
@@ -75,13 +81,12 @@ class _Display extends State<Display> {
     });
     filterBoards(filters[0],filters[1],filters[2]);
     updateDisplayBoards();
-  }
-
-  List<int> added = List.empty(growable: true);
+  } 
   final field1 = TextEditingController();
   final field2 = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    updateDisplayBoards();
     if(!playerNames.contains("All")){
       playerNames.add("All");
     }
@@ -117,11 +122,10 @@ class _Display extends State<Display> {
                     isMobile,backG(Colors.black)
                   ),
                   filter(isMobile,filters,changeFilters,playerNames),
-                  ControllBoard(navInfo,isMobile,changeNav, (boards.length/navInfo[1]).ceil(),KK ),
+                  ControllBoard(navInfo,isMobile,changeNav, (boards.length/navInfo[1]).ceil(),KK,switchView),
                   NewGameScreen(isMobile,playerNames,glob),
-                  Column(
-                    children: GamesDis(displayBoards,glob,isMobile, context),
-                  )])]
+                  DisplayGames(glob, isMobile, context, view)
+                  ])]
     ))]));
   }
 
@@ -154,6 +158,20 @@ class _Display extends State<Display> {
     }
   }
 
+  Widget DisplayGames( Data glob, bool isMobile, BuildContext context, bool view){
+    if(view){
+      return Column(
+        children: displayBoards.map(
+        (board) => OtherView(board, glob,isMobile,context)
+        ).toList()
+      );
+    } else {
+      return Column(
+        children: GamesDis(displayBoards,glob,isMobile, context),
+      );
+    }
+  }
+
   void KK() async {
     if(mounted){
       setState(() {
@@ -168,6 +186,7 @@ class _Display extends State<Display> {
               String l = response.body.substring(1, response.body.length - 1);
               getGames(l);
               filterBoards(filters[0],filters[1],filters[2]);
+              print("hello");
               updateDisplayBoards();
             }
         }
@@ -286,18 +305,16 @@ class _Display extends State<Display> {
   }
   
   void updateDisplayBoards() {
-    displayBoards = List.empty(growable: true);
+    List<Board> playBoards = List.empty(growable: true);
     for(int i = navInfo[0] * navInfo[1];i < navInfo[0] * navInfo[1] + navInfo[1];i++){
-      setState(() {
         if(filteredBoards.length > i){
-          displayBoards.add(filteredBoards[i]);
+          playBoards.add(filteredBoards[i]);
         }
-      });}setState(() {
-        
+      }
+      setState(() {
+        displayBoards = playBoards;
       });
-      
-  }
-  
+    }
 }
 
 List<Widget> GamesDis(List<Board> displayBoards, Data glob, bool isMobile,BuildContext context) {
@@ -315,7 +332,7 @@ List<Widget> GamesDis(List<Board> displayBoards, Data glob, bool isMobile,BuildC
   return wiges;
 }
 
-Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK){
+Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK, Function switchView){
   double width = 1000;
   double height = 140;
   if(mobile){
@@ -362,14 +379,16 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages,
               SizedBox(
                 width: width/3,
                 height: height *0.7 / 1.5,
-                child: Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: ElevatedButton(
-                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blueGrey[500]),),
+                child: Row(children:  [
+                  Column(children: [
+                  ElevatedButton(
+                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blueGrey[500])),
                     onPressed: () { KK();},
                     child: 
-                      // ignore: prefer_const_literals_to_create_immutables
-                      Row(
+                      SizedBox(
+                        width: 150,
+                        height: 30,
+                        child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
                       // ignore: prefer_const_constructors
@@ -379,13 +398,48 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages,
                         size: 25.0,
                         ),
                         Text("Refresh", style: TextStyle(color: Colors.white, fontSize: 20),)
-                      ],
-                    ),
-                  ),
-          ))],
-          )
-      ]))
-  ));
+                      ]
+                    )
+                  )),
+                  ElevatedButton(
+                      child: SizedBox(
+                        width: 150,
+                        height: 30 ,
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                      // ignore: prefer_const_constructors
+                      Icon(
+                        Icons.view_carousel_outlined,
+                        color: Colors.white,
+                        size: 25.0,
+                        ),
+                        Text("Change View", style: TextStyle(color: Colors.white, fontSize: 20),)
+                      ]
+                    )),onPressed: () => {switchView()},
+                    )
+                  ],),
+                  Column(children: [
+                    ElevatedButton(
+                      style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 255, 255, 0))),
+                      child: SizedBox(
+                        width: 110,
+                        height: 60,
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                      // ignore: prefer_const_constructors
+                      Icon(
+                        Icons.remove_red_eye,
+                        color: Colors.black,
+                        size: 25.0,
+                        ),
+                        Text("Spectate", style: TextStyle(color: Colors.black, fontSize: 20),)
+                      ]
+                    )),onPressed: () => {switchView()},
+                  )])
+                ])
+              )])]))));
 }
 
 List<String> makeList(int pages) {
