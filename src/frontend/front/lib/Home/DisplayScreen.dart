@@ -320,9 +320,10 @@ class _Display extends State<Display> {
 List<Widget> GamesDis(List<Board> displayBoards, Data glob, bool isMobile,BuildContext context) {
   List<Widget> wiges = List.empty(growable: true);
   List<Widget> temp = List.empty(growable: true);
+  int numPerRow = isMobile ? 2 : 3;
   for(int i =0; i < displayBoards.length;){
     List<Widget> temp = List.empty(growable: true);
-    for(int l = 0; l < 3;l++){
+    for(int l = 0; l < numPerRow;l++){
       if(i < displayBoards.length){
         temp.add(DisplayGame(displayBoards[i++],glob,isMobile,context));
       }
@@ -335,9 +336,108 @@ List<Widget> GamesDis(List<Board> displayBoards, Data glob, bool isMobile,BuildC
 Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages, Function KK, Function switchView){
   double width = 1000;
   double height = 140;
+  double size = 25;
+  double buttonHeight = 30;
   if(mobile){
     width = 400;
     height = 150;
+    size = 18;
+  }
+  Widget Refresh = ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: EdgeInsets.zero,
+      backgroundColor: Colors.blueGrey[500]
+    ),
+    onPressed: () { KK();},
+    child: 
+      SizedBox(
+        width: mobile ? 130 : 150,
+        height: buttonHeight,
+        child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+      // ignore: prefer_const_constructors
+      Icon(
+        Icons.refresh_sharp,
+        color: Colors.white,
+        size: size,
+        ),
+        Text("Refresh", style: TextStyle(color: Colors.white, fontSize: size),)
+      ]
+    )
+  ));
+  Widget ChangeView = ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: EdgeInsets.zero,
+    ),
+    child: SizedBox(
+      width: mobile ? 130 : 150,
+      height: buttonHeight ,
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children:  [
+    // ignore: prefer_const_constructors
+    Icon(
+      Icons.view_carousel_outlined,
+      color: Colors.white,
+      size: size,
+      ),
+      Text("Change View", style: TextStyle(color: Colors.white, fontSize: size),)
+    ]
+  )),onPressed: () => {switchView()},
+  );
+  Widget Spectate = ElevatedButton(
+    style:ElevatedButton.styleFrom(
+      minimumSize: Size.zero,
+      padding: EdgeInsets.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 0)
+    ),
+    child: SizedBox(
+      width: mobile ? 130 : 110,
+      height: mobile ? buttonHeight : buttonHeight * 2,
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+    // ignore: prefer_const_constructors
+    Icon(
+      Icons.remove_red_eye,
+      color: Colors.black,
+      size: size,
+      ),
+      Text("Spectate", style: TextStyle(color: Colors.black, fontSize: size),)
+    ]
+  )),onPressed: () => {switchView()},
+);
+  Widget wid ;
+  if(mobile){
+    wid = SizedBox(
+      child: Column(
+        children: [
+          Refresh,
+          ChangeView,
+          Spectate
+        ],
+      ),
+    );
+  } else {
+    wid = SizedBox(
+    width: width/3,
+    height: height *0.7 / 1.5,
+    child: Row(children:  [
+      Column(children: [
+        Refresh,
+        ChangeView
+      ]),
+      Column(children: [
+        Spectate
+        ])
+    ])
+  );
   }
   return Padding(
     padding: const EdgeInsets.fromLTRB(0,4,0,0),
@@ -376,70 +476,8 @@ Widget ControllBoard(List<int> navInfo, bool mobile, Function change, int pages,
                 width: width/3,
                 child: TextSec("Page    ",makeList(pages), mobile, 25, change, 0, dumbFunc(navInfo)),
               ),
-              SizedBox(
-                width: width/3,
-                height: height *0.7 / 1.5,
-                child: Row(children:  [
-                  Column(children: [
-                  ElevatedButton(
-                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blueGrey[500])),
-                    onPressed: () { KK();},
-                    child: 
-                      SizedBox(
-                        width: 150,
-                        height: 30,
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                      // ignore: prefer_const_constructors
-                      Icon(
-                        Icons.refresh_sharp,
-                        color: Colors.white,
-                        size: 25.0,
-                        ),
-                        Text("Refresh", style: TextStyle(color: Colors.white, fontSize: 20),)
-                      ]
-                    )
-                  )),
-                  ElevatedButton(
-                      child: SizedBox(
-                        width: 150,
-                        height: 30 ,
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                      // ignore: prefer_const_constructors
-                      Icon(
-                        Icons.view_carousel_outlined,
-                        color: Colors.white,
-                        size: 25.0,
-                        ),
-                        Text("Change View", style: TextStyle(color: Colors.white, fontSize: 20),)
-                      ]
-                    )),onPressed: () => {switchView()},
-                    )
-                  ],),
-                  Column(children: [
-                    ElevatedButton(
-                      style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 255, 255, 0))),
-                      child: SizedBox(
-                        width: 110,
-                        height: 60,
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                      // ignore: prefer_const_constructors
-                      Icon(
-                        Icons.remove_red_eye,
-                        color: Colors.black,
-                        size: 25.0,
-                        ),
-                        Text("Spectate", style: TextStyle(color: Colors.black, fontSize: 20),)
-                      ]
-                    )),onPressed: () => {switchView()},
-                  )])
-                ])
-              )])]))));
+              wid
+              ])]))));
 }
 
 List<String> makeList(int pages) {

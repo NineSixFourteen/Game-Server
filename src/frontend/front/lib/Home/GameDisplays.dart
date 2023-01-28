@@ -30,7 +30,7 @@ Widget OtherView(Board board, Data glob, bool isMobile, BuildContext context,){
   Color color;
   Text text;
   if(isMobile){
-    widths = [90,60,100,120];
+    widths = [80,60,90,120];
     fontSize = 20;
     MiddleBit = Column(
       children: [
@@ -123,7 +123,7 @@ Widget DisplayGame(Board board, Data glob, bool isMobile,BuildContext context){
   Text text;
   double fontSize = 40;
   if(isMobile){
-    fontSize = 20;
+    fontSize = 25;
   }
   if(board.gameDone){
     if(board.winner == emm + 1){
@@ -161,8 +161,8 @@ Widget GameDis(Board board, Text text, int moves, String player, int photo, bool
   double width = 350;
   double height = 350;
   if(isMobile){
-    width = 100;
-    height = 100;
+    width = 185;
+    height = 200;
   }
   return SizedBox(
     width: width,
@@ -180,12 +180,14 @@ Widget GameDis(Board board, Text text, int moves, String player, int photo, bool
 Widget GameInfo(Board board, bool mobile, Text text, int photo, String player, Color col) {
   double width = 400;
   double height = 97;
+  double fontSize = 50;
   if(mobile){
-    width = 100;
-    height = 100;
+    width = 200;
+    height = 71;
+    fontSize = 40;
   }
-  Color color = Color.fromARGB(255, 5, 141, 209);
-  if(col != Color.fromARGB(255, 19, 187, 230)){
+  Color color = const Color.fromARGB(255, 5, 141, 209);
+  if(col != const Color.fromARGB(255, 19, 187, 230)){
     color = col;
   }
   return SizedBox(
@@ -197,11 +199,11 @@ Widget GameInfo(Board board, bool mobile, Text text, int photo, String player, C
         Row(
           children:[
           SizedBox(
-              width: 130,
-              height: 97,
+              width: mobile ? 70: 130,
+              height: height,
               child: Image.asset("assets/images/$photo.png")
             ),
-          Text(player, style: const TextStyle(color: Colors.white, fontSize: 50),)
+          Text(player, style: TextStyle(color: Colors.white, fontSize: fontSize),)
       ])
     )
   );
@@ -212,7 +214,7 @@ Widget GameBoard(Board board, bool mobile) {
   double width = 400;
   double height = 200;
   if(mobile){
-    width = 100;
+    width = 200;
     height = 100;
   }
   return SizedBox(
@@ -299,7 +301,7 @@ Widget ShowBoard(List<int> board, bool isMobile, bool view) {
     if(isMobile){
       width = 40;
       height = 25 ;
-      fontSize = 20;
+      fontSize = 15;
     }  else {
       width = 70;
       height = 60;
@@ -307,7 +309,7 @@ Widget ShowBoard(List<int> board, bool isMobile, bool view) {
     }
   } else {
     if(isMobile){
-      width = 50;
+      width = 40;
       height = 25;
       fontSize = 20;
     }  else {

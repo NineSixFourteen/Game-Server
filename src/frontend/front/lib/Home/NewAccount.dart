@@ -68,7 +68,7 @@ Widget makeMenu(bool mobile, BuildContext context) {
       Row(children: [
       secss("Username",Name,mobile,false),
       secss("Password",Password,mobile,true)],),
-      createAccountButton(Password,Name,mobile, context),
+      createAccountButton(Name,Password,mobile, context),
     ],
   );
 }
@@ -107,11 +107,11 @@ void createAccound(String name, String password, BuildContext context) async {
         if(response.body == "User Created"){
           print("User Created");
           AccountCreation(context, true);
-        }
-      } else {
+        } else {
         print(response.body);
         AccountCreation(context, false);
       }
+      } 
     } on Exception{
       print("Fail");
     }

@@ -42,17 +42,17 @@ Widget filter(bool isMobile, List<String> filters, Function change, List<String>
             children: [
               SizedBox(
                 height: height * 0.7,
-                width: width/3,
+                width: width/2.8,
                 child: TextSec("Player",playerNames, isMobile, fontSize, change, 0, filters),
               ),
               SizedBox(
                 height: height * 0.7,
-                width: width/3,
+                width: width/3.2,
                 child: TextSec("Result",["All","Win","Lose","Draw","Incomplete"], isMobile, fontSize, change, 1, filters),
               ),
               SizedBox(
                 height: height * 0.7,
-                width: width/3,
+                width: width/3.2,
                 child: TextSec("Gamemode",['All', 'TicTacToe', 'Connect4', ], isMobile, fontSize, change, 2, filters),
               ),
             ],

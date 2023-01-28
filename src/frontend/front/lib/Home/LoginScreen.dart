@@ -50,6 +50,8 @@ class _Login extends State<Login> {
 
   void SignIn(String name, String Password) async{
     try{
+      print(name);
+      print(Password);
       final response = await http
         .get(Uri.parse('http://139.162.210.205/GameSev/Login?name=$name&pass=$Password'));
         if(response.statusCode == 200){

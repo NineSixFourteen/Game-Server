@@ -92,7 +92,7 @@ class _newMenu extends State<newMenu> {
     return SizedBox(
       height: 250,
       child: Container(
-        decoration: const BoxDecoration(color: Color.fromARGB(255, 50, 179, 146)),
+        decoration: const BoxDecoration(color: Color.fromARGB(255, 32, 7, 61)),
         child : CreateGameMenu(isMobile, fontSize,Fields,change,context,glob.user,playerNames))
       );
   }
@@ -110,7 +110,7 @@ Widget CreateGameMenu(bool mobile, double fontSize, List<String> fields, Functio
         createButton(fontSize,200,50,context,fields, user)
     ]);
   } else{
-    List<Widget> widgets = List.from(newGameSel(fields,fontSize - 5,false,func,playerNames),growable: true);
+    List<Widget> widgets = List.from(newGameSel(fields,fontSize ,false,func,playerNames),growable: true);
     widgets.add(createButton(fontSize ,300,140,context,fields, user));
     return Row( 
       mainAxisAlignment: MainAxisAlignment.center,
@@ -174,8 +174,8 @@ List<Widget> newGameSel(List<String> fields, double fontSize,bool mobile, Functi
 } else{
     return  [
       makePlayerSelect("Player ", fields, playerNames, fontSize,mobile,0,func),
-      Padding(padding: const EdgeInsets.all(40),child: makeSelect("Player Number", fields, ["Player1", "Player2"], fontSize,mobile,1,func)),
-      Padding(padding: const EdgeInsets.all(30),child: makeSelect("Gamemode", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func))
+      makeSelect("Player Number", fields, ["Player1", "Player2"], fontSize,mobile,1,func),
+      makeSelect("Gamemode", fields, ["TicTacToe", "Connect4"], fontSize,mobile,2,func)
     ];
 }
 }
@@ -190,13 +190,15 @@ Widget makePlayerSelect(String title, List<String> fields, List<String> options,
           ]
         );
   } else{
-    return Column(
+    return SizedBox(
+      width: 300,
+      child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-          Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
+          Text(title, style: TextStyle( color: const Color.fromARGB(255, 16, 184, 226),fontSize: fontSize, fontWeight: FontWeight.w700)),
           makePlayerSelHelper(fields, options, fontSize,val,func,mobile),
         ]
-      );
+      ));
   }
 }
 
@@ -205,18 +207,20 @@ Widget makeSelect(String title, List<String> fields, List<String> options, doubl
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-          Text(title, style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: fontSize)),
+          Text(title, style: TextStyle(color: const Color.fromARGB(255, 16, 142, 226), fontSize: fontSize)),
           makeSelectHelper(fields, options, fontSize,val,func,mobile),
         ]
       );
   } else{
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-          Text(title, style: TextStyle( color: const Color.fromARGB(255, 17, 65, 97),fontSize: fontSize)),
-          makeSelectHelper(fields, options, fontSize,val,func,mobile),
-        ]
-      );
+    return SizedBox(
+      width: 300,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+            Text(title, style: TextStyle( color: const Color.fromARGB(255, 16, 184, 226),fontSize: fontSize, fontWeight: FontWeight.w700)),
+            makeSelectHelper(fields, options, fontSize,val,func,mobile),
+          ]
+        ));
   }
 }
 
@@ -228,7 +232,7 @@ Widget makeSelectHelper(List<String> fields, List<String> options, double font, 
   } 
   return DecoratedBox(
   decoration: BoxDecoration( 
-     color:Colors.blueGrey[300], //background color of dropdown button
+     color:const Color.fromARGB(255, 30, 51, 61), //background color of dropdown button
      border: Border.all(color: Colors.black38, width:3), //border of dropdown button
      borderRadius: BorderRadius.circular(10), //border raiuds of dropdown button
      boxShadow: const [ //apply shadow on Dropdown button
@@ -240,7 +244,7 @@ Widget makeSelectHelper(List<String> fields, List<String> options, double font, 
   child:Padding(
     padding: EdgeInsets.all(padding),
     child:DropdownButton(
-    style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
+    style: TextStyle(color: const Color.fromARGB(255, 16, 142, 226), fontSize: font),
     alignment: Alignment.center,
     value: init,
     items: options.map((String value) {
@@ -254,7 +258,7 @@ Widget makeSelectHelper(List<String> fields, List<String> options, double font, 
         func(val, newValue);
     }, 
     iconEnabledColor: Colors.white,
-    dropdownColor: Colors.blueGrey[300], 
+    dropdownColor: const Color.fromARGB(255, 30, 51, 61),
     underline: Container(), 
     )
   ));
@@ -275,7 +279,7 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
   } 
   Widget wid = DecoratedBox(
   decoration: BoxDecoration( 
-     color:Colors.blueGrey[300], //background color of dropdown button
+     color:Color.fromARGB(255, 30, 51, 61), //background color of dropdown button
      border: Border.all(color: Colors.black38, width:3), //border of dropdown button
      borderRadius: BorderRadius.circular(10), //border raiuds of dropdown button
      boxShadow: const [ //apply shadow on Dropdown button
@@ -287,7 +291,7 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
   child:Padding(
     padding: EdgeInsets.all(padding),
     child:DropdownButton(
-    style: TextStyle(color: const Color.fromARGB(255, 17, 65, 97), fontSize: font),
+    style: TextStyle(color: const Color.fromARGB(255, 16, 142, 226), fontSize: font),
     alignment: Alignment.center,
     value: init,
     items: playerNames.map((String value) {
@@ -301,7 +305,7 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
         func(val, newValue);
     }, 
     iconEnabledColor: Colors.white,
-    dropdownColor: Colors.blueGrey[300], 
+    dropdownColor: const Color.fromARGB(255, 30, 51, 61), 
     underline: Container(), 
     )
   ));
@@ -313,6 +317,8 @@ Widget makePlayerSelHelper(List<String> fields, List<String> options, double fon
       child: 
           TextField(
         decoration: const InputDecoration(
+          hintStyle: TextStyle(color: Colors.white, fontSize: 23),
+          labelStyle: TextStyle(color:Colors.white, fontSize: 23),
           border: OutlineInputBorder(),
           labelText:'User Name',
           hintText:'Enter Your Name',
